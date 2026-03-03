@@ -3,4 +3,4 @@ flask-cors==4.0.0
 werkzeug==3.0.1
 
 # TTT - Qwen model
-git+https://github.com/jebin2/TTT.git#egg=ttt-runner[qwen]
+ttt-runner[qwen] @ git+https://github.com/jebin2/TTT.git
