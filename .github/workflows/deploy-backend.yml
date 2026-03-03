@@ -1,0 +1,114 @@
+name: Deploy Backend to Hugging Face
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'hf_backend/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Hugging Face CLI
+        run: |
+          pip install --upgrade huggingface_hub
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Clone Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git clone https://huggingface.co/spaces/jebin2/TTT hf-space
+          cd hf-space
+          git remote set-url origin https://jebin2:$HF_TOKEN@huggingface.co/spaces/jebin2/TTT
+
+      - name: Copy hf_backend files to HF Space
+        run: |
+          # Remove old files except .git
+          find hf-space -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+
+          # Copy all hf_backend files
+          cp -r hf_backend/* hf-space/
+
+          # Ensure Dockerfile exists
+          if [ ! -f hf-space/Dockerfile ]; then
+            echo "Error: Dockerfile not found in hf_backend folder"
+            exit 1
+          fi
+
+      - name: Create README for HF Space
+        run: |
+          cat > hf-space/README.md << 'EOF'
+          ---
+          title: TTT Text-to-Text Generator
+          emoji: 🤖
+          colorFrom: green
+          colorTo: cyan
+          sdk: docker
+          pinned: false
+          license: mit
+          ---
+
+          # Text-to-Text Generator
+
+          A Python-based text generation service powered by Qwen/Qwen3.5-4B with a neobrutalist web interface.
+
+          ## Features
+          - 📝 Submit text prompts via REST API or web UI
+          - 🤖 Automatic generation using Qwen/Qwen3.5-4B
+          - 💾 SQLite database for queue management with task IDs
+          - 🎨 Neobrutalist UI with real-time progress updates
+          - 🔄 Queue position and estimated wait time
+
+          ## Usage
+          Access the web interface at the Space URL above.
+
+          ## API Endpoints
+          - POST `/api/submit` - Submit text task
+          - GET `/api/tasks` - Get all tasks
+          - GET `/api/tasks/<id>` - Get specific task
+
+          ---
+          *Auto-deployed from GitHub*
+          EOF
+
+      - name: Commit and push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd hf-space
+          git add .
+
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-deploy from GitHub: ${{ github.sha }}"
+            git push origin main
+            echo "✅ Successfully deployed to Hugging Face Space!"
+          fi
+
+      - name: Deployment Summary
+        run: |
+          echo "🚀 Deployment completed!"
+          echo "📍 Space URL: https://huggingface.co/spaces/jebin2/TTT"
+          echo "📝 Commit SHA: ${{ github.sha }}"

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Text Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0e27;
+            --surface: #141b3d;
+            --primary: #00ff88;
+            --secondary: #ff00ff;
+            --accent: #00d4ff;
+            --error: #ff1744;
+            --text: #ffffff;
+            --border: 4px;
+        }
+
+        body {
+            font-family: 'Space Grotesk', 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 6px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        .input-section {
+            background: var(--surface);
+            border: var(--border) solid var(--primary);
+            box-shadow: 8px 8px 0 var(--primary);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
+        }
+
+        .input-section:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 12px 12px 0 var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .field-label {
+            color: var(--accent);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 3px solid var(--accent);
+            color: var(--text);
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            margin-bottom: 1.5rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        #inputText {
+            min-height: 150px;
+        }
+
+        #systemPrompt {
+            min-height: 80px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--bg);
+            border: var(--border) solid var(--bg);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0 var(--bg);
+            letter-spacing: 1px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--bg);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--bg);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            box-shadow: 3px 3px 0 var(--bg);
+        }
+
+        .btn-small:hover:not(:disabled) {
+            box-shadow: 4px 4px 0 var(--bg);
+        }
+
+        .table-section {
+            animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s both;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            background: var(--surface);
+            border: var(--border) solid var(--secondary);
+            box-shadow: 8px 8px 0 var(--secondary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+
+        th {
+            padding: 1.5rem 1rem;
+            text-align: left;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--bg);
+            border-right: 3px solid var(--bg);
+        }
+
+        th:last-child { border-right: none; }
+
+        tbody tr {
+            border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        tbody tr:hover { background: rgba(0, 255, 136, 0.1); }
+
+        td { padding: 1.5rem 1rem; color: var(--text); }
+
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: 3px solid;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .status-not_started {
+            background: var(--bg);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .status-processing {
+            background: var(--bg);
+            border-color: var(--primary);
+            color: var(--primary);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .status-completed {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--bg);
+        }
+
+        .status-failed {
+            background: var(--error);
+            border-color: var(--error);
+            color: var(--text);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .progress-bar-wrap {
+            background: rgba(0,212,255,0.1);
+            border: 2px solid var(--accent);
+            height: 8px;
+            margin-top: 6px;
+            width: 120px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.4s ease;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--secondary);
+            border: var(--border) solid var(--bg);
+            box-shadow: 4px 4px 0 var(--bg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(180deg) scale(1.1);
+            box-shadow: 6px 6px 0 var(--bg);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 14, 39, 0.95);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: var(--border) solid var(--primary);
+            box-shadow: 12px 12px 0 var(--primary);
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            position: relative;
+            animation: modalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 2rem 1rem 2rem;
+            border-bottom: 3px solid var(--primary);
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .modal-close {
+            background: var(--error);
+            color: var(--text);
+            border: 3px solid var(--bg);
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: 900;
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 0 var(--bg);
+        }
+
+        .modal-close:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 var(--bg);
+        }
+
+        .code-block {
+            background: var(--bg);
+            border: 3px solid var(--accent);
+            padding: 1.5rem;
+            overflow-y: auto;
+            margin: 1.5rem 2rem 2rem 2rem;
+            position: relative;
+            flex: 1;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            color: var(--primary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .copy-btn {
+            position: sticky;
+            top: 0.5rem;
+            float: right;
+            background: var(--accent);
+            color: var(--bg);
+            border: 3px solid var(--bg);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 0 var(--bg);
+            z-index: 5;
+        }
+
+        .copy-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--bg); }
+        .copy-btn.copied { background: var(--primary); }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1.5rem 2rem;
+            background: var(--primary);
+            color: var(--bg);
+            border: var(--border) solid var(--bg);
+            box-shadow: 6px 6px 0 var(--bg);
+            font-weight: 900;
+            z-index: 2000;
+            animation: slideInRight 0.5s ease, slideOutRight 0.5s ease 3.5s;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .input-section, .table-wrapper { box-shadow: 4px 4px 0 var(--primary); }
+            th, td { padding: 1rem 0.5rem; font-size: 0.9rem; }
+            .modal-content { padding: 0; }
+            .code-block { margin: 1rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Text-to-Text Generator</h1>
+            <p class="subtitle">Qwen3.5-9B &bull; Submit &bull; Queue &bull; Generate</p>
+        </header>
+
+        <div class="input-section">
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Submit Text Task</h2>
+
+            <div class="field-label">System Prompt (optional)</div>
+            <textarea id="systemPrompt" placeholder="You are a helpful assistant."></textarea>
+
+            <div class="field-label">Input Text *</div>
+            <textarea id="inputText" placeholder="Enter your prompt or text here..."></textarea>
+
+            <button class="btn" id="submitBtn" style="width: 100%;">
+                🚀 Submit &amp; Process
+            </button>
+        </div>
+
+        <div class="table-section">
+            <h2 style="margin-bottom: 1.5rem; color: var(--secondary);">Processing Queue</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Input</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                            <th>Est. Wait</th>
+                            <th>Result</th>
+                            <th>Created</th>
+                            <th>Processed</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksTable">
+                        <tr>
+                            <td colspan="7" class="empty-state">No tasks submitted yet. Enter some text above!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" id="refreshBtn" title="Refresh">🔄</button>
+
+    <!-- Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📄 Result</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyResult()">📋 Copy</button>
+                <code id="resultCode"></code>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        const resultStore = new Map();
+
+        const submitBtn = document.getElementById('submitBtn');
+        const inputText = document.getElementById('inputText');
+        const systemPrompt = document.getElementById('systemPrompt');
+
+        async function submitTask() {
+            const text = inputText.value.trim();
+            if (!text) {
+                showNotification('Please enter some input text.', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+
+            try {
+                const response = await fetch(`${API_URL}/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        system_prompt: systemPrompt.value.trim() || undefined
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification(`Task submitted! ID: ${data.id.slice(0, 8)}...`);
+                    inputText.value = '';
+                    loadTasks();
+                } else {
+                    showNotification(data.error || 'Submission failed', 'error');
+                }
+            } catch (error) {
+                showNotification('Network error: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Submit & Process';
+            }
+        }
+
+        submitBtn.addEventListener('click', submitTask);
+
+        inputText.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') submitTask();
+        });
+
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_URL}/tasks`);
+                const tasks = await response.json();
+
+                const tbody = document.getElementById('tasksTable');
+                resultStore.clear();
+
+                if (tasks.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No tasks submitted yet. Enter some text above!</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = tasks.map(task => {
+                    if (task.result && task.result !== 'HIDDEN_IN_LIST_VIEW') {
+                        resultStore.set(task.id, task.result);
+                    }
+
+                    const inputPreview = task.input_text.length > 60
+                        ? task.input_text.slice(0, 60) + '...'
+                        : task.input_text;
+
+                    let estWait = '—';
+                    if (task.status === 'not_started' && task.estimated_start_seconds !== null) {
+                        const s = task.estimated_start_seconds;
+                        if (s < 60) estWait = `${s}s`;
+                        else if (s < 3600) {
+                            const m = Math.floor(s / 60), sec = s % 60;
+                            estWait = sec > 0 ? `${m}m ${sec}s` : `${m}m`;
+                        } else {
+                            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+                            estWait = m > 0 ? `${h}h ${m}m` : `${h}h`;
+                        }
+                        if (task.queue_position) estWait = `#${task.queue_position} (${estWait})`;
+                    } else if (task.status === 'processing') {
+                        estWait = '⏳ Processing...';
+                    }
+
+                    const progress = task.progress || 0;
+                    const progressHtml = task.status === 'processing' || (task.status === 'not_started' && progress > 0)
+                        ? `<div>${progress}%</div>
+                           <div class="progress-bar-wrap">
+                             <div class="progress-bar-fill" style="width:${progress}%"></div>
+                           </div>
+                           <div style="font-size:0.75rem;color:var(--accent);margin-top:4px">${task.progress_text || ''}</div>`
+                        : task.status === 'completed' ? '✅ 100%' : '—';
+
+                    const resultHtml = task.status === 'completed'
+                        ? `<button class="btn btn-small btn-secondary" onclick="showResult('${task.id}')">Show</button>`
+                        : task.status === 'failed'
+                            ? `<button class="btn btn-small" style="background:var(--error)" onclick="showResult('${task.id}')">Error</button>`
+                            : '—';
+
+                    return `
+                        <tr>
+                            <td><strong>${inputPreview}</strong></td>
+                            <td><span class="status status-${task.status}">${task.status.replace('_', ' ')}</span></td>
+                            <td>${progressHtml}</td>
+                            <td>${estWait}</td>
+                            <td>${resultHtml}</td>
+                            <td>${new Date(task.created_at).toLocaleString()}</td>
+                            <td>${task.processed_at ? new Date(task.processed_at).toLocaleString() : '—'}</td>
+                        </tr>`;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+
+        async function showResult(taskId) {
+            // Fetch full result from individual endpoint
+            try {
+                const response = await fetch(`${API_URL}/tasks/${taskId}`);
+                const task = await response.json();
+
+                const modal = document.getElementById('resultModal');
+                const code = document.getElementById('resultCode');
+                code.textContent = task.result || '(no result)';
+                resultStore.set(taskId, task.result || '');
+                modal.classList.add('active');
+            } catch (e) {
+                showNotification('Failed to load result', 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('active');
+        }
+
+        function copyResult() {
+            const code = document.getElementById('resultCode');
+            const btn = event.target;
+            navigator.clipboard.writeText(code.textContent).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+
+        document.getElementById('resultModal').addEventListener('click', (e) => {
+            if (e.target.id === 'resultModal') closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.getElementById('refreshBtn').addEventListener('click', loadTasks);
+
+        // Auto-refresh every 5 seconds when tasks are processing
+        setInterval(async () => {
+            const rows = document.querySelectorAll('.status-processing, .status-not_started');
+            if (rows.length > 0) loadTasks();
+        }, 5000);
+
+        // Initial load
+        loadTasks();
+    </script>
+</body>
+
+</html>
