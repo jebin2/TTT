@@ -173,26 +173,12 @@ class OllamaService:
         return False
 
     def restart(self) -> bool:
-        """Restart Ollama service using systemctl"""
+        """Restart Ollama service by killing and restarting the process"""
         try:
-            logger_config.info("Restarting Ollama service via systemctl...")
-            process = subprocess.Popen(
-                ["sudo", "-S", "systemctl", "restart", "ollama"],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            password = os.getenv('CLOWN', '')
-            out, err = process.communicate(input=f"{password}\n".encode(), timeout=30)
-            
-            if process.returncode == 0:
-                return self._wait_for_startup()
-            else:
-                logger_config.error(f"systemctl restart failed: {err.decode()}")
-                return False
-        except subprocess.TimeoutExpired:
-            logger_config.error("Timeout while restarting Ollama service")
-            return False
+            logger_config.info("Restarting Ollama service...")
+            subprocess.run(["pkill", "-f", "ollama serve"], check=False, timeout=10)
+            time.sleep(2)
+            return self.start()
         except Exception as e:
             logger_config.error(f"Error restarting Ollama: {e}")
             return False
