@@ -77,9 +77,8 @@ class OllamaTTTProcessor(BaseTTT):
                     chunk_count += 1
                     
                     if chunk_count % 10 == 0:
-                        # Estimate progress roughly, Ollama client doesn't give exact token counts until end
-                        pct = min(30 + int((chunk_count / 100) * 65), 95)
-                        _cb(pct, f"Generating... ({chunk_count} chunks)")
+                        pct = min(20 + int(75 * chunk_count / max_new_tokens), 95)
+                        _cb(pct, f"Generating... ({chunk_count} tokens)")
 
             _cb(100, "Done")
             logger_config.info(f"✅ Generation complete")
