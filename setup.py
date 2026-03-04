@@ -6,6 +6,8 @@ this_directory = os.path.abspath(os.path.dirname(__file__))
 BASE_DEPS = [
     'torch',
     'python-dotenv',
+    "jebin_lib @ git+https://github.com/jebin2/lib.git",
+    "custom_logger @ git+https://github.com/jebin2/custom_logger.git",
 ]
 
 extras_require = {
@@ -25,7 +27,7 @@ setup(
     name="ttt-runner",
     version="1.0.0",
     author="Jebin Einstein",
-    author_email="jebin@gmail.com",
+    author_email="jebineinstein@gmail.com",
     description="A flexible text-to-text generation runner (Qwen/Qwen3.5-4B)",
     url="https://github.com/jebin2/TTT",
 

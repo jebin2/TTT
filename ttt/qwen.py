@@ -24,7 +24,7 @@ class QwenTTTProcessor(BaseTTT):
         print(f"Loading model: {self.model_name} on {self.device}")
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
-            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+            torch_dtype="auto",
             device_map="auto",
             trust_remote_code=True
         )
