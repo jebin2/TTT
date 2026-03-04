@@ -53,7 +53,7 @@ class BaseTTT:
         if not input_text or not input_text.strip():
             raise ValueError("No input text provided")
 
-        system_prompt = args.get('system_prompt') or "You are a helpful assistant."
+        system_prompt = args.get('system_prompt') or "You are a helpful assistant. Always respond in English."
 
         result = self.generate_text(
             input_text=input_text.strip(),
