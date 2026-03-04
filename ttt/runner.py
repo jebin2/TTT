@@ -33,12 +33,12 @@ def initiate(args, progress_callback=None):
         dict result from generate(), or False on failure
     """
     if isinstance(args, dict):
-        model = args.get('model', 'qwen3.5:0.8b')
+        model = args.get('model', 'qwen3.5:4b')
     else:
-        model = getattr(args, 'model', 'qwen3.5:0.8b') or 'qwen3.5:0.8b'
+        model = getattr(args, 'model', 'qwen3.5:4b') or 'qwen3.5:4b'
 
     if model == "qwen":
-        model = "qwen3.5:0.8b"
+        model = "qwen3.5:4b"
             
     engine = _get_engine(model)
     return engine.generate(args if isinstance(args, dict) else vars(args),

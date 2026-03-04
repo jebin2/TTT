@@ -6,7 +6,7 @@ from custom_logger import logger_config
 class OllamaTTTProcessor(BaseTTT):
     """Text-to-text processor using Ollama."""
 
-    def __init__(self, model_name="qwen3.5:0.8b"):
+    def __init__(self, model_name="qwen3.5:4b"):
         super().__init__("ollama")
         self.model_name = model_name
         self._load_model()
