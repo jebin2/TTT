@@ -90,7 +90,20 @@ class QwenTTTProcessor(BaseTTT):
             "top_p": top_p,
         }
 
-        gen_thread = threading.Thread(target=self.model.generate, kwargs=generate_kwargs)
+        def _generate():
+            try:
+                self.model.generate(**generate_kwargs)
+            except Exception as e:
+                print(f"Exception in generation thread: {e}", flush=True)
+                import traceback
+                traceback.print_exc()
+                # Stop the streamer to unblock the main thread
+                try:
+                    streamer.text_queue.put(streamer.stop_signal, timeout=1)
+                except:
+                    pass
+
+        gen_thread = threading.Thread(target=_generate)
         gen_thread.start()
 
         # Collect streamed tokens and report progress
