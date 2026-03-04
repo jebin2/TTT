@@ -4,24 +4,18 @@ from setuptools import setup, find_packages
 this_directory = os.path.abspath(os.path.dirname(__file__))
 
 BASE_DEPS = [
-    'torch',
     'python-dotenv',
+    'requests',
+    'ollama',
     "jebin_lib @ git+https://github.com/jebin2/lib.git",
     "custom_logger @ git+https://github.com/jebin2/custom_logger.git",
 ]
 
 extras_require = {
-    'qwen': [
-        'transformers>=4.45.0',
-        'accelerate>=0.26.0',
-        'python-dotenv',
-    ],
+    'all': [],
 }
 
 all_deps = []
-for deps in extras_require.values():
-    all_deps.extend(deps)
-extras_require['all'] = list(set(all_deps))
 
 setup(
     name="ttt-runner",

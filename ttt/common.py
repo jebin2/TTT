@@ -8,7 +8,7 @@ def is_gpu_available(verbose=True):
     if not torch.cuda.is_available():
         if verbose:
             print("CUDA not available.")
-        return False
+    return False
 
     try:
         torch.empty(1, device="cuda")

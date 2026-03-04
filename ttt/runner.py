@@ -15,11 +15,8 @@ TTT_ENGINE = None
 def _get_engine(model):
     global TTT_ENGINE
     if TTT_ENGINE is None:
-        if model == "qwen":
-            from .qwen import QwenTTTProcessor as TTTEngine
-        else:
-            raise ValueError(f"Unknown model: {model}. Available: qwen")
-        TTT_ENGINE = TTTEngine()
+        from .ollama_processor import OllamaTTTProcessor as TTTEngine
+        TTT_ENGINE = TTTEngine(model_name=model)
     return TTT_ENGINE
 
 
@@ -36,10 +33,13 @@ def initiate(args, progress_callback=None):
         dict result from generate(), or False on failure
     """
     if isinstance(args, dict):
-        model = args.get('model', 'qwen')
+        model = args.get('model', 'qwen3.5:0.8b')
     else:
-        model = getattr(args, 'model', 'qwen') or 'qwen'
+        model = getattr(args, 'model', 'qwen3.5:0.8b') or 'qwen3.5:0.8b'
 
+    if model == "qwen":
+        model = "qwen3.5:0.8b"
+            
     engine = _get_engine(model)
     return engine.generate(args if isinstance(args, dict) else vars(args),
                            progress_callback=progress_callback)
