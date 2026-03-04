@@ -14,8 +14,9 @@ class BaseTTT:
 
     def __init__(self, type):
         self.device = common.get_device()
-        os.environ["TORCH_USE_CUDA_DSA"] = "1"
-        os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+        if self.device == "cuda":
+            os.environ["TORCH_USE_CUDA_DSA"] = "1"
+            os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
         os.environ["HF_HUB_TIMEOUT"] = "120"
         self.type = type
         self.temp_dir = "./temp_dir"

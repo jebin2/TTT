@@ -25,7 +25,10 @@ def is_gpu_available(verbose=True):
 
 
 def get_device():
-    import torch
+    try:
+        import torch
+    except ImportError:
+        return "cpu"
     if os.getenv("USE_CPU_IF_POSSIBLE", None):
         torch.cuda.is_available = lambda: False
         return "cpu"
@@ -46,5 +49,6 @@ def clear_gpu_cache():
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
             torch.cuda.synchronize()
-    except Exception as e:
-        print(f"⚠️  GPU cache clear error: {e}")
+    except (ImportError, Exception) as e:
+        if not isinstance(e, ImportError):
+            print(f"⚠️  GPU cache clear error: {e}")

@@ -50,11 +50,12 @@ class OllamaTTTProcessor(BaseTTT):
 
         try:
             num_thread = int(os.environ.get("OMP_NUM_THREADS", max(1, (os.cpu_count() or 4) - 2)))
-            
+
             response = self.client.chat(
                 model=self.model_name,
                 messages=messages,
                 stream=True,
+                think=False,
                 options={
                     "num_predict": max_new_tokens,
                     "temperature": temperature,
@@ -65,9 +66,12 @@ class OllamaTTTProcessor(BaseTTT):
 
             content = ""
             chunk_count = 0
-            
+
             for chunk in response:
-                current_data = chunk.get('message', {}).get('content', '')
+                if hasattr(chunk, 'message'):
+                    current_data = chunk.message.content or ''
+                else:
+                    current_data = chunk.get('message', {}).get('content', '')
                 if current_data:
                     content += current_data
                     chunk_count += 1
