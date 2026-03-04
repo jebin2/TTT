@@ -62,8 +62,15 @@
         }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
@@ -93,8 +100,15 @@
         }
 
         @keyframes glow {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         .subtitle {
@@ -119,8 +133,15 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .field-label {
@@ -232,7 +253,9 @@
             border-right: 3px solid var(--bg);
         }
 
-        th:last-child { border-right: none; }
+        th:last-child {
+            border-right: none;
+        }
 
         tbody tr {
             border-bottom: 2px solid rgba(0, 212, 255, 0.2);
@@ -241,13 +264,23 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
-        tbody tr:hover { background: rgba(0, 255, 136, 0.1); }
+        tbody tr:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
 
-        td { padding: 1.5rem 1rem; color: var(--text); }
+        td {
+            padding: 1.5rem 1rem;
+            color: var(--text);
+        }
 
         .status {
             display: inline-block;
@@ -273,8 +306,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
         }
 
         .status-completed {
@@ -297,7 +337,7 @@
         }
 
         .progress-bar-wrap {
-            background: rgba(0,212,255,0.1);
+            background: rgba(0, 212, 255, 0.1);
             border: 2px solid var(--accent);
             height: 8px;
             margin-top: 6px;
@@ -338,8 +378,10 @@
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(10, 14, 39, 0.95);
             z-index: 2000;
             animation: fadeIn 0.3s ease;
@@ -367,8 +409,15 @@
         }
 
         @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(-50px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .modal-header {
@@ -443,8 +492,14 @@
             z-index: 5;
         }
 
-        .copy-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--bg); }
-        .copy-btn.copied { background: var(--primary); }
+        .copy-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 var(--bg);
+        }
+
+        .copy-btn.copied {
+            background: var(--primary);
+        }
 
         .notification {
             position: fixed;
@@ -461,20 +516,47 @@
         }
 
         @keyframes slideInRight {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         @keyframes slideOutRight {
-            to { transform: translateX(400px); opacity: 0; }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
         }
 
         @media (max-width: 768px) {
-            .container { padding: 1rem; }
-            .input-section, .table-wrapper { box-shadow: 4px 4px 0 var(--primary); }
-            th, td { padding: 1rem 0.5rem; font-size: 0.9rem; }
-            .modal-content { padding: 0; }
-            .code-block { margin: 1rem; }
+            .container {
+                padding: 1rem;
+            }
+
+            .input-section,
+            .table-wrapper {
+                box-shadow: 4px 4px 0 var(--primary);
+            }
+
+            th,
+            td {
+                padding: 1rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                padding: 0;
+            }
+
+            .code-block {
+                margin: 1rem;
+            }
         }
     </style>
 </head>
@@ -483,7 +565,7 @@
     <div class="container">
         <header>
             <h1>Text-to-Text Generator</h1>
-            <p class="subtitle">Qwen3.5-9B &bull; Submit &bull; Queue &bull; Generate</p>
+            <p class="subtitle">Qwen3.5-4B &bull; Submit &bull; Queue &bull; Generate</p>
         </header>
 
         <div class="input-section">

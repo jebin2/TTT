@@ -26,9 +26,9 @@ def is_gpu_available(verbose=True):
 
 def get_device():
     import torch
-    if os.getenv("USE_CPU_IF_POSSIBLE", None):
-        torch.cuda.is_available = lambda: False
-        return "cpu"
+    # if os.getenv("USE_CPU_IF_POSSIBLE", None):
+    torch.cuda.is_available = lambda: False
+    return "cpu"
 
     device = "cuda" if is_gpu_available() else "cpu"
 
