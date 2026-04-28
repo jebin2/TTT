@@ -2,311 +2,168 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTT</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>TTT - Text To Text</title>
+
+    <!-- External Assets -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Caveat:wght@400..700&display=swap"
+        rel="stylesheet" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@600;800&family=Permanent+Marker&family=Patrick+Hand&display=swap"
-        rel="stylesheet">
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+
+    <!-- Tailwind Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        surface: "#e6f0fd",
+                        "crayon-blue": "#2563eb",
+                        "crayon-red": "#dc2626",
+                        "crayon-green": "#16a34a",
+                        "crayon-yellow": "#ca8a04",
+                        "crayon-orange": "#ea580c",
+                        "crayon-purple": "#7c3aed",
+                        "crayon-dark": "#1A1A1A"
+                    },
+                    fontFamily: {
+                        "fredoka": ["Fredoka", "sans-serif"],
+                        "caveat": ["Caveat", "cursive"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["42px", { lineHeight: "1.1", fontWeight: "700" }],
+                        "headline-md": ["28px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "body-lg": ["24px", { lineHeight: "1.5", fontWeight: "500" }],
+                        "label-sm": ["18px", { lineHeight: "1.2", letterSpacing: "0.01em", fontWeight: "500" }],
+                        "body-md": ["20px", { lineHeight: "1.5", fontWeight: "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+
     <style>
-        :root {
-            /* Colors */
-            --bg: #334155;
-            --surface: #5e3329;
-            --surface-hover: #7c4436;
-            --border: #2d1a15;
-            --primary: #2d1a15;
-            --primary-light: #a36555;
-            --success: #14532d;
-            --success-light: #86efac;
-            --error: #7f1d1d;
-            --error-light: #fca5a5;
-            --text-main: #fde6d2;
-            --text-bg: #cbd5e1;
-            --text-dim: #f5d0b1;
-
-            /* Fonts */
-            --font-main: 'Inter', sans-serif;
-            --font-header: 'Patrick Hand', cursive;
-            --font-logo: 'Permanent Marker', cursive;
-
-            /* Sizes & Spacing */
-            --border-width: 3px;
-            --radius-card: 12px;
-            --radius-btn: 8px;
-            --radius-pill: 4px;
-            --radius-full: 999px;
-            --spacing-sm: 0.5rem;
-            --spacing-md: 1rem;
-            --spacing-lg: 1.5rem;
-
-            /* Shadows */
-            --shadow-card: 4px 4px 0px 0px var(--border);
-            --shadow-btn: 3px 3px 0px 0px var(--border);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: var(--font-main);
-        }
-
+        /* Sketchbook Styles */
         body {
-            background-color: var(--bg);
-            color: var(--text-bg);
-            height: 100vh;
-            width: 100vw;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            line-height: 1.5;
+            background-color: #e6f0fd;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+            color: #1A1A1A;
+            font-family: 'Fredoka', sans-serif;
         }
 
-        .container {
-            width: 90vw;
-            height: 90vh;
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            grid-template-rows: auto 1fr;
-            gap: 1.5rem;
+        .bg-surface {
+            background-color: rgb(255 255 255 / 0%) !important;
+            backdrop-filter: blur(2px);
         }
 
-        /* Paper Cards */
-        .card {
-            background: var(--surface);
-            border: var(--border-width) solid var(--border);
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            padding: var(--spacing-lg);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-card);
+        .crayon-filter {
+            filter: url('#crayon-texture');
         }
 
-        .card:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px 0px var(--border);
+        .crayon-heavy {
+            filter: url('#crayon-heavy');
         }
 
-        /* Header Card */
-        .header-card {
-            grid-column: span 12;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.25rem 2.5rem;
+        .crayon-border-green {
+            border: 4px solid #16a34a;
+            border-radius: 12px 8px 15px 10px / 8px 14px 10px 12px;
+            filter: url('#crayon-texture');
         }
 
-        .logo-group h1 {
-            font-family: 'Permanent Marker', cursive;
-            font-size: 2.5rem;
-            color: var(--text-main);
-            letter-spacing: 0.05em;
-            transform: rotate(-2deg);
-            text-shadow: 2px 2px 0px var(--primary);
+        .task-card {
+            border: 3px solid rgba(124, 58, 237, 0.4);
+            border-radius: 20px 15px 25px 18px / 18px 25px 15px 20px;
+            filter: url('#crayon-texture');
         }
 
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-main);
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-            background: rgba(15, 23, 42, 0.1);
-            border-radius: 999px;
-            border: 1px solid var(--border);
+        .crayon-border-blue {
+            border: 4px dashed #2563eb;
+            border-radius: 15px 10px 12px 18px / 12px 18px 15px 10px;
+            filter: url('#crayon-texture');
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
+        .crayon-border-purple {
+            border: 4px solid #7c3aed;
+            border-radius: 10px 16px 12px 14px / 16px 12px 14px 10px;
+            filter: url('#crayon-texture');
         }
 
-        /* Input Card */
-        .input-card {
-            grid-column: span 4;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .field-label {
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        textarea {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border: var(--border-width) solid var(--border);
-            border-radius: var(--radius-btn);
-            color: var(--text-main);
-            padding: 0.8rem;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            resize: none;
-            outline: none;
+        .crayon-button {
+            border: 4px solid #2563eb;
+            border-radius: 12px 8px 14px 10px / 8px 14px 10px 12px;
             transition: all 0.2s ease;
-        }
-
-        textarea:focus {
-            border-color: var(--primary-light);
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        #systemPrompt { height: 80px; }
-        #inputText { flex: 1; min-height: 150px; }
-
-        .submit-btn {
-            background: var(--primary);
-            color: var(--text-main);
-            border: var(--border-width) solid var(--border);
-            padding: var(--spacing-md);
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            font-weight: 700;
+            filter: url('#crayon-texture');
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow-btn);
-            text-transform: uppercase;
         }
 
-        .submit-btn:hover {
-            transform: translate(-1px, -1px);
-            box-shadow: 4px 4px 0px 0px var(--border);
+        .crayon-button:hover {
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 0.1);
         }
 
-        .submit-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        .crayon-button:hover .material-symbols-outlined.spin-on-hover {
+            animation: spin 2s linear infinite;
         }
 
-        /* Queue Card */
-        .queue-card {
-            grid-column: span 8;
-            display: flex;
-            flex-direction: column;
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
+        @keyframes drift {
+            0% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(20px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
         }
 
-        .card-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            font-family: 'Patrick Hand', cursive;
-            color: var(--text-main);
-            letter-spacing: 0.02em;
+        .drift-slow {
+            animation: drift 8s ease-in-out infinite;
         }
 
-        .refresh-btn {
-            background: var(--primary);
-            border: var(--border-width) solid var(--border);
-            color: var(--text-main);
-            padding: 0.4rem 1.2rem;
+        .drift-medium {
+            animation: drift 5s ease-in-out infinite;
+        }
+
+        .organic-shape {
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 2px 2px 0px 0px var(--border);
+            filter: url('#crayon-texture');
         }
 
-        .refresh-btn:hover {
-            transform: translate(-1px, -1px);
-            box-shadow: 4px 4px 0px 0px var(--border);
-            opacity: 0.95;
+        .scribble-fill-green {
+            background: repeating-linear-gradient(60deg, #16a34a, #16a34a 2px, #15803d 3px, #16a34a 4px);
         }
 
-        /* Table */
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-            margin-right: -0.5rem;
-            padding-right: 0.5rem;
+        .scribble-fill-purple {
+            background: repeating-linear-gradient(60deg, #7c3aed, #7c3aed 2px, #6d28d9 3px, #7c3aed 4px);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .progress-fill {
+            background: repeating-linear-gradient(80deg, #2563eb, #2563eb 2px, #1d4ed8 3px, #2563eb 5px);
         }
 
-        th {
-            text-align: left;
-            padding: 0.75rem 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 800;
-            color: var(--text-main);
-            text-transform: uppercase;
-            border-bottom: var(--border-width) solid var(--border);
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 48;
+            filter: url('#crayon-texture');
         }
 
-        td {
-            padding: 1rem 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(253, 230, 210, 0.1);
-            color: var(--text-main);
-        }
-
-        .status-pill {
-            padding: 0.25rem 0.6rem;
-            border: 2px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .pill-not_started { background: rgba(15, 23, 42, 0.15); color: var(--text-main); }
-        .pill-processing { background: var(--primary-light); color: var(--primary); }
-        .pill-completed { background: var(--success-light); color: var(--success); }
-        .pill-failed { background: var(--error-light); color: var(--error); }
-
-        .btn-view {
-            background: var(--primary);
-            border: 2px solid var(--border);
-            color: var(--text-main);
-            padding: 0.3rem 1rem;
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 2px 2px 0px 0px var(--border);
-        }
-
-        .btn-view:hover {
-            transform: translate(-1px, -1px);
-            box-shadow: 4px 4px 0px 0px var(--border);
-            opacity: 0.95;
-        }
-
-        /* Modal */
+        /* --- Modals --- */
         .modal {
             position: fixed;
             inset: 0;
@@ -323,162 +180,369 @@
         }
 
         .modal-content {
-            background: var(--surface);
-            border: var(--border-width) solid var(--border);
+            border: 4px solid #2563eb;
             width: 100%;
-            max-width: 800px;
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            max-width: 900px;
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
-            max-height: 80vh;
-            box-shadow: var(--shadow-card);
+            max-height: 85vh;
+            box-shadow: 12px 12px 0px 0px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        .status-modal-content {
-            max-width: 400px;
-            text-align: center;
-            padding: var(--spacing-lg);
+        .modal-sketch-bg {
+            position: absolute;
+            inset: -8px;
+            border: 6px solid #2563eb;
+            backdrop-filter: blur(10px);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            z-index: -1;
+            filter: url('#crayon-texture');
+            pointer-events: none;
         }
-        .status-icon { margin: 0 auto var(--spacing-md); font-size: 3rem; }
 
-        /* Utilities */
-        .flex-group { display: flex; gap: var(--spacing-md); align-items: center; }
-        .btn-api-doc { cursor: pointer; background: var(--primary-light); border-color: var(--primary); }
-        .text-bold { font-weight: 700; color: var(--text-main); }
-        .text-dimmed { font-size: 0.8rem; color: var(--text-main); opacity: 0.8; }
-        .text-center { text-align: center; padding: 3rem; color: var(--text-bg); }
-        .progress-container { width: 100px; height: 4px; background: rgba(253, 230, 210, 0.1); border-radius: 2px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--text-main); }
-        
         .modal-header {
             padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 3px dashed #adc6ff;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            z-index: 10;
         }
 
-        .modal-body { padding: 2rem; overflow-y: auto; }
-        
+        .modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        #resultText,
         pre {
-            background: #47271f;
-            border: var(--border-width) solid var(--border);
-            padding: 1.25rem;
-            border-radius: 0.75rem;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            color: var(--text-main);
-            white-space: pre-wrap;
-            word-break: break-all;
+            border: 3px dashed #adc6ff !important;
+            padding: 2rem !important;
+            border-radius: 20px !important;
+            font-family: 'Fredoka', sans-serif !important;
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: #1A1A1A !important;
+            white-space: pre-wrap !important;
+            word-break: break-all !important;
+            line-height: 1.6 !important;
+            filter: url('#crayon-texture');
         }
 
         .close-modal {
             background: transparent;
             border: none;
-            color: var(--text-dim);
-            font-size: 1.5rem;
+            color: #dc2626;
+            font-size: 3rem;
             cursor: pointer;
+            font-weight: 700;
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .text-headline-lg {
+            filter: url('#crayon-texture');
+        }
 
         .copy-btn {
-            background: var(--primary);
-            color: var(--text-main);
-            border: 2px solid var(--border);
-            padding: 0.2rem 0.8rem;
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            font-size: 0.7rem;
+            background: #16a34a;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
             font-weight: 700;
-            cursor: pointer;
-            box-shadow: 2px 2px 0 var(--border);
+            box-shadow: 4px 4px 0px 0px #15803d;
             transition: all 0.2s;
+            filter: url('#crayon-texture');
         }
 
         .copy-btn:hover {
-            transform: translate(-1px, -1px);
-            box-shadow: 3px 3px 0 var(--border);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px #15803d;
         }
 
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; height: auto; overflow-y: auto; padding: 1rem; }
-            .card { grid-column: span 12 !important; }
+        /* --- Specific UI Elements --- */
+        .status-modal-content {
+            max-width: 450px;
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .status-modal-bg {
+            position: absolute;
+            inset: -12px;
+            border: 8px solid #2563eb;
+            background: #e6f0fd;
+            border-radius: 20px 40px 15px 35px / 35px 15px 40px 20px;
+            z-index: -1;
+            filter: url('#crayon-texture');
+            pointer-events: none;
+        }
+
+        .status-icon-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px 15px 25px 18px / 18px 25px 15px 20px;
+            border: 4px solid currentColor;
+            filter: url('#crayon-texture');
+            position: relative;
+            z-index: 20;
+        }
+
+        .status-icon-bg {
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            opacity: 0.15;
+            z-index: -1;
+            border-radius: inherit;
+        }
+
+        .modal-decoration {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: 5;
+            filter: url('#crayon-texture');
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+            border: 2px solid #f1f5f9;
+        }
+
+        #inputText,
+        #systemPrompt {
+            background: rgba(255, 255, 255, 0.4);
+            border: 3px dashed #adc6ff;
+            border-radius: 20px;
+            padding: 1.5rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.5rem;
+            color: #1A1A1A;
+            filter: url('#crayon-texture');
+            transition: all 0.2s;
+            font-weight: 600 !important;
+            white-space: pre-wrap !important;
+            word-break: break-all !important;
+        }
+
+        #inputText:focus,
+        #systemPrompt:focus {
+            border-color: #2563eb;
+            background: rgba(255, 255, 255, 0.7);
+            outline: none;
         }
     </style>
 </head>
 
-<body>
-    <div class="container">
-        <!-- Header -->
-        <header class="card header-card">
-            <div class="logo-group">
-                <h1>TTT</h1>
-            </div>
-            <div class="flex-group">
-                <div class="status-badge btn-api-doc" id="apiDocBtn">
-                    <span class="text-bold">API DOC</span>
-                </div>
-                <div class="status-badge">
-                    <div class="status-dot" id="healthDot"></div>
-                    <span id="healthText">Service Online</span>
-                </div>
-            </div>
-        </header>
+<body class="h-screen flex flex-col overflow-hidden relative">
+    <!-- Main Background Decorations -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10 opacity-40">
+        <!-- Stars -->
+        <span
+            class="material-symbols-outlined absolute text-5xl text-crayon-yellow top-20 left-[10%] rotate-12 crayon-heavy animate-pulse">star</span>
+        <span
+            class="material-symbols-outlined absolute text-3xl text-crayon-orange top-[40%] left-[5%] -rotate-12 crayon-filter">star</span>
+        <span
+            class="material-symbols-outlined absolute text-4xl text-crayon-yellow bottom-[20%] left-[15%] rotate-45 animate-pulse">star</span>
+        <span
+            class="material-symbols-outlined absolute text-6xl text-crayon-orange top-[15%] right-[15%] rotate-[-15deg] crayon-heavy">star</span>
+        <span
+            class="material-symbols-outlined absolute text-3xl text-crayon-yellow bottom-[30%] right-[10%] rotate-12 animate-pulse">star</span>
 
-        <!-- Input -->
-        <div class="card input-card">
-            <div class="card-header">
-                <span class="card-title">Generate</span>
-            </div>
-            
-            <div class="field-group">
-                <span class="field-label">System Prompt</span>
-                <textarea id="systemPrompt" placeholder="You are a helpful assistant."></textarea>
-            </div>
+        <!-- Clouds -->
+        <span
+            class="material-symbols-outlined absolute text-[120px] text-crayon-blue top-[10%] left-[25%] opacity-20 drift-slow">cloud</span>
+        <span
+            class="material-symbols-outlined absolute text-[80px] text-crayon-purple bottom-[15%] left-[40%] opacity-10 drift-medium">cloud</span>
+        <span
+            class="material-symbols-outlined absolute text-[100px] text-crayon-blue top-[60%] right-[25%] opacity-15 drift-slow">cloud</span>
+        <span
+            class="material-symbols-outlined absolute text-[150px] text-crayon-purple top-[30%] right-[5%] opacity-10 drift-medium">cloud</span>
 
-            <div class="field-group" style="flex:1; display:flex; flex-direction:column;">
-                <span class="field-label">User Prompt</span>
-                <textarea id="inputText" placeholder="What should I generate?"></textarea>
-            </div>
-
-            <button class="submit-btn" id="submitBtn">🚀 Submit Task</button>
-        </div>
-
-        <!-- Queue -->
-        <div class="card queue-card">
-            <div class="card-header">
-                <span class="card-title">Recent Activity</span>
-                <button class="refresh-btn" onclick="loadTasks()">Refresh</button>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Input</th>
-                            <th>Status</th>
-                            <th>Progress</th>
-                            <th>Est. Wait</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="queueBody">
-                        <!-- Data injected here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <!-- Hearts -->
+        <span
+            class="material-symbols-outlined absolute text-4xl text-crayon-red top-[25%] left-[18%] rotate-[-15deg] crayon-filter animate-pulse">favorite</span>
+        <span
+            class="material-symbols-outlined absolute text-2xl text-crayon-red bottom-[10%] right-[20%] rotate-12 crayon-filter">favorite</span>
+        <span
+            class="material-symbols-outlined absolute text-5xl text-crayon-red top-[70%] left-[8%] rotate-[10deg] animate-pulse">favorite</span>
     </div>
 
-    <!-- Modal -->
-    <div class="modal" id="resultModal">
+    <!-- SVG Filters -->
+    <svg height="0" width="0" style="position: absolute;">
+        <filter id="crayon-texture" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+        <filter id="crayon-heavy" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="4" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </svg>
+
+    <!-- Header -->
+    <header
+        class="bg-surface flex justify-between items-center w-[calc(100%-48px)] mx-6 mt-6 px-8 py-5 crayon-border-green z-10 shrink-0 organic-shape shadow-sm">
+        <div class="flex items-center gap-5">
+            <div
+                class="bg-crayon-green text-white w-14 h-14 rounded-2xl flex items-center justify-center border-[3px] border-crayon-green rotate-[-4deg] crayon-filter scribble-fill-green shadow-md">
+                <span class="material-symbols-outlined text-4xl">task_alt</span>
+            </div>
+            <div class="flex flex-col -rotate-1">
+                <h1 class="text-headline-lg text-[#4c1d95] leading-none mb-1">TTT</h1>
+                <span class="text-label-sm text-[#4b5563] font-bold">Text To Text</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-10 relative">
+            <div class="absolute -left-48 top-2 rotate-12 crayon-heavy">
+                <span class="material-symbols-outlined text-4xl text-crayon-yellow">star</span>
+            </div>
+            <div class="absolute -left-24 top-0 -rotate-6 crayon-heavy opacity-80">
+                <span class="material-symbols-outlined text-5xl text-crayon-blue">cloud</span>
+            </div>
+            <button id="apiDocBtn"
+                class="flex items-center gap-2 text-headline-md text-crayon-purple px-8 py-3 bg-surface crayon-button rotate-1 shadow-md">
+                <span class="material-symbols-outlined text-3xl">menu_book</span>
+                API DOC
+            </button>
+            <div
+                class="flex items-center gap-4 bg-surface px-6 py-3 rounded-full border-[4px] border-crayon-green organic-shape shadow-md">
+                <div id="healthDot" class="w-4 h-4 rounded-full bg-crayon-green shadow-[0_0_12px_rgba(22,163,74,0.5)]">
+                </div>
+                <span id="healthText" class="text-headline-md text-crayon-green text-2xl">Service Online</span>
+                <div class="text-crayon-orange flex items-center justify-center rotate-[15deg]">
+                    <span class="material-symbols-outlined text-4xl">light_mode</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden p-8 gap-8 mx-auto w-full relative">
+        <!-- Input Section -->
+        <section class="w-[450px] flex flex-col gap-8">
+            <div
+                class="flex flex-col gap-6 p-8 bg-surface crayon-border-blue flex-1 relative organic-shape shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-4 mb-2 rotate-1">
+                    <div
+                        class="bg-crayon-blue text-white rounded-full w-14 h-14 flex items-center justify-center border-2 border-crayon-blue crayon-filter shadow-md">
+                        <span class="material-symbols-outlined text-4xl">edit_note</span>
+                    </div>
+                    <div>
+                        <h2 class="text-headline-md text-crayon-blue leading-none mb-1 flex items-center gap-2">
+                            GENERATE
+                            <span class="material-symbols-outlined text-crayon-red text-2xl rotate-12">favorite</span>
+                        </h2>
+                        <p class="text-label-sm text-[#6b7280]">Submit your task</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-4 flex-1">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-label-sm text-crayon-purple font-bold px-2">System Prompt</label>
+                        <textarea id="systemPrompt" placeholder="You are a helpful assistant..."
+                            class="h-24 resize-none"></textarea>
+                    </div>
+                    <div class="flex flex-col gap-2 flex-1">
+                        <label class="text-label-sm text-crayon-blue font-bold px-2">User Prompt</label>
+                        <textarea id="inputText" placeholder="What should I generate?"
+                            class="flex-1 resize-none"></textarea>
+                    </div>
+                    <button id="submitBtn"
+                        class="flex items-center justify-center gap-3 text-headline-md text-white bg-crayon-blue py-5 crayon-button border-[4px] -rotate-1 shadow-md hover:scale-105 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-3xl">rocket_launch</span>
+                        SUBMIT TASK
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activity Section -->
+        <section
+            class="flex-1 flex flex-col bg-surface crayon-border-purple p-8 relative organic-shape overflow-hidden shadow-sm">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4 rotate-1">
+                    <div
+                        class="bg-crayon-purple text-white rounded-full w-14 h-14 flex items-center justify-center border-[3px] border-crayon-purple shadow-md">
+                        <span class="material-symbols-outlined text-4xl">schedule</span>
+                    </div>
+                    <div>
+                        <h2 class="text-headline-lg text-[#4c1d95] leading-none mb-1">ACTIVITY</h2>
+                        <p class="text-label-sm text-[#6b7280] font-bold">Your recently processed tasks</p>
+                    </div>
+                </div>
+                <div class="relative w-40 h-20 flex items-center">
+                    <svg class="absolute left-[-30px] top-4 w-32 h-16 crayon-filter text-crayon-yellow" fill="none"
+                        stroke="currentColor" stroke-dasharray="6 6" stroke-linecap="round" stroke-width="3"
+                        viewBox="0 0 100 50">
+                        <path d="M10,40 Q40,50 60,30 T90,10" />
+                    </svg>
+                    <span
+                        class="material-symbols-outlined text-5xl text-crayon-orange absolute right-0 top-0 rotate-12">send</span>
+                </div>
+                <button onclick="loadTasks()"
+                    class="flex items-center gap-2 text-headline-md text-crayon-blue px-8 py-3 bg-surface crayon-button border-[4px] -rotate-1 shadow-md">
+                    <span class="material-symbols-outlined text-3xl spin-on-hover">sync</span>
+                    Refresh
+                </button>
+            </div>
+
+            <!-- List Header -->
+            <div class="flex w-full px-6 pb-4 border-b-[5px] text-[#4c1d95] font-bold text-xl uppercase tracking-wider"
+                style="border-color: rgba(124, 58, 237, 0.4); border-radius: 20px 15px 25px 18px / 18px 25px 15px 20px; filter: url(#crayon-texture);">
+                <div class="w-1/2">INPUT PREVIEW</div>
+                <div class="w-1/6 text-center">STATUS</div>
+                <div class="w-1/4 text-center">PROGRESS</div>
+                <div class="w-[10%] text-center">ACTION</div>
+            </div>
+
+            <!-- Task List Body -->
+            <div id="queueBody" class="flex flex-col gap-5 mt-6 overflow-y-auto flex-1 table-container pr-4">
+                <div class="text-center py-32 text-headline-md text-[#94a3b8] font-bold opacity-60">No tasks found
+                    yet...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Result & API Modal -->
+    <div id="resultModal" class="modal">
         <div class="modal-content">
+            <div class="modal-sketch-bg"></div>
+
+            <!-- Decorations -->
+            <span
+                class="material-symbols-outlined modal-decoration text-6xl text-crayon-yellow top-4 left-4 -rotate-12">star</span>
+            <span
+                class="material-symbols-outlined modal-decoration text-8xl text-crayon-blue top-12 right-20 opacity-20">cloud</span>
+            <span
+                class="material-symbols-outlined modal-decoration text-4xl text-crayon-orange bottom-10 left-10 rotate-45">star</span>
+            <span
+                class="material-symbols-outlined modal-decoration text-7xl text-crayon-purple bottom-4 right-4 -rotate-6 opacity-40">cloud</span>
+
             <div class="modal-header">
-                <div style="display:flex; align-items:center; gap:1rem;">
-                    <span class="card-title">Result</span>
-                    <button class="copy-btn" id="copyBtn" onclick="copyResult()">📋 Copy</button>
+                <div class="flex items-center gap-6">
+                    <span id="modalTitle" class="text-headline-lg text-[#1e1b4b]">Task Result</span>
+                    <button id="copyBtn" onclick="copyResult()" class="copy-btn">📋 Copy Text</button>
                 </div>
                 <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
@@ -489,127 +553,82 @@
     </div>
 
     <!-- Status Modal -->
-    <div class="modal" id="statusModal">
+    <div id="statusModal" class="modal">
         <div class="modal-content status-modal-content">
-            <div class="status-icon">🚀</div>
-            <h2 class="card-title" id="statusMessage">Submitting...</h2>
-            <p class="text-dimmed" id="statusSubMessage">Please wait while we queue your task.</p>
+            <div id="statusBg" class="status-modal-bg"></div>
+
+            <span
+                class="material-symbols-outlined modal-decoration text-4xl text-crayon-yellow top-6 right-6 rotate-12">star</span>
+            <span
+                class="material-symbols-outlined modal-decoration text-6xl text-crayon-blue top-10 left-4 opacity-30">cloud</span>
+            <span
+                class="material-symbols-outlined modal-decoration text-3xl text-crayon-orange bottom-8 right-10 -rotate-12">star</span>
+            <span
+                class="material-symbols-outlined modal-decoration text-5xl text-crayon-purple bottom-10 left-8 rotate-6 opacity-30">cloud</span>
+
+            <div id="statusIconContainer" class="status-icon-container text-crayon-blue">
+                <div class="status-icon-bg"></div>
+                <span id="statusIcon" class="material-symbols-outlined text-6xl animate-bounce">rocket_launch</span>
+            </div>
+            <h2 id="statusMessage" class="text-headline-lg text-crayon-blue mb-2">Submitting...</h2>
+            <p id="statusSubMessage" class="text-body-lg text-[#4b5563]">Please wait while we queue your task.</p>
         </div>
     </div>
 
     <script>
+        // --- Configuration ---
         const API_BASE = '/api';
-        
-        // Elements
-        const submitBtn = document.getElementById('submitBtn');
-        const inputText = document.getElementById('inputText');
-        const systemPrompt = document.getElementById('systemPrompt');
-        const queueBody = document.getElementById('queueBody');
-        const statusModal = document.getElementById('statusModal');
-        const statusMessage = document.getElementById('statusMessage');
 
-        async function uploadTask() {
-            const text = inputText.value.trim();
-            if (!text) return;
+        // --- DOM Elements ---
+        const UI = {
+            inputText: document.getElementById('inputText'),
+            systemPrompt: document.getElementById('systemPrompt'),
+            submitBtn: document.getElementById('submitBtn'),
+            queueBody: document.getElementById('queueBody'),
+            resultModal: document.getElementById('resultModal'),
+            statusModal: document.getElementById('statusModal'),
+            resultText: document.getElementById('resultText'),
+            modalTitle: document.getElementById('modalTitle'),
+            statusMessage: document.getElementById('statusMessage'),
+            statusSubMessage: document.getElementById('statusSubMessage'),
+            statusIcon: document.getElementById('statusIcon'),
+            statusIconContainer: document.getElementById('statusIconContainer'),
+            statusBg: document.getElementById('statusBg'),
+            healthDot: document.getElementById('healthDot'),
+            healthText: document.getElementById('healthText'),
+            apiDocBtn: document.getElementById('apiDocBtn')
+        };
 
-            statusModal.classList.add('active');
-            statusMessage.innerText = "Submitting...";
-            submitBtn.disabled = true;
+        // --- UI Helpers ---
+        function updateStatusModal(type, msg, subMsg) {
+            UI.statusMessage.innerText = msg;
+            UI.statusSubMessage.innerText = subMsg || "Processing your request, please wait.";
+            UI.statusIconContainer.className = "status-icon-container";
+            UI.statusIcon.className = "material-symbols-outlined text-6xl";
+            UI.statusBg.style.borderColor = "";
 
-            try {
-                const res = await fetch(`${API_BASE}/tasks/upload`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: text,
-                        system_prompt: systemPrompt.value.trim() || undefined
-                    })
-                });
-
-                if (res.ok) {
-                    statusMessage.innerText = "Success!";
-                    inputText.value = '';
-                    setTimeout(() => {
-                        statusModal.classList.remove('active');
-                        loadTasks();
-                    }, 800);
-                } else {
-                    statusMessage.innerText = "Submission Failed";
-                    setTimeout(() => statusModal.classList.remove('active'), 1500);
-                }
-            } catch (err) {
-                statusMessage.innerText = "Connection Error";
-                setTimeout(() => statusModal.classList.remove('active'), 1500);
-            } finally {
-                submitBtn.disabled = false;
+            if (type === 'loading') {
+                UI.statusIconContainer.classList.add('text-crayon-blue');
+                UI.statusIcon.innerText = "rocket_launch";
+                UI.statusIcon.classList.add('animate-bounce');
+                UI.statusBg.style.borderColor = "#2563eb";
+            } else if (type === 'success') {
+                UI.statusIconContainer.classList.add('text-crayon-green');
+                UI.statusIcon.innerText = "check_circle";
+                UI.statusBg.style.borderColor = "#16a34a";
+            } else if (type === 'error') {
+                UI.statusIconContainer.classList.add('text-crayon-red');
+                UI.statusIcon.innerText = "error";
+                UI.statusBg.style.borderColor = "#dc2626";
             }
-        }
-
-        submitBtn.onclick = uploadTask;
-        inputText.onkeydown = (e) => { if (e.ctrlKey && e.key === 'Enter') uploadTask(); };
-
-        async function loadTasks() {
-            try {
-                const res = await fetch(`${API_BASE}/tasks`);
-                const tasks = await res.json();
-                renderQueue(tasks);
-            } catch (err) { console.error(err); }
-        }
-
-        function renderQueue(files) {
-            if (files.length === 0) {
-                queueBody.innerHTML = '<tr><td colspan="5" class="text-center">No tasks found</td></tr>';
-                return;
-            }
-            queueBody.innerHTML = files.map(f => {
-                let estWait = '—';
-                if (f.status === 'not_started' && f.estimated_start_seconds !== null) {
-                    const s = f.estimated_start_seconds;
-                    estWait = s < 60 ? `${s}s` : `${Math.floor(s/60)}m`;
-                    if (f.queue_position) estWait = `#${f.queue_position} (${estWait})`;
-                } else if (f.status === 'processing') {
-                    estWait = '⏳ Processing...';
-                }
-
-                const preview = f.filename.length > 50 ? f.filename.slice(0, 50) + '...' : f.filename;
-
-                return `
-                <tr>
-                    <td class="text-bold">${preview}</td>
-                    <td><span class="status-pill pill-${f.status}">${f.status.replace('_', ' ')}</span></td>
-                    <td>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width:${f.progress}%"></div>
-                        </div>
-                    </td>
-                    <td>${estWait}</td>
-                    <td>
-                        ${f.status === 'completed' ? `<button class="btn-view" onclick="showResult('${f.id}')">View</button>` : '—'}
-                    </td>
-                </tr>`;
-            }).join('');
-        }
-
-        async function showResult(id) {
-            const res = await fetch(`${API_BASE}/tasks/${id}`);
-            const data = await res.json();
-            let text = data.result;
-
-            try {
-                const parsed = JSON.parse(text);
-                text = parsed.text || text;
-            } catch (e) { }
-
-            document.getElementById('resultText').innerText = text || '(no result)';
-            document.getElementById('resultModal').classList.add('active');
         }
 
         function closeModal() {
-            document.getElementById('resultModal').classList.remove('active');
+            UI.resultModal.classList.remove('active');
         }
 
         function copyResult() {
-            const text = document.getElementById('resultText').innerText;
+            const text = UI.resultText.innerText;
             const btn = document.getElementById('copyBtn');
             navigator.clipboard.writeText(text).then(() => {
                 const orig = btn.innerText;
@@ -618,48 +637,163 @@
             });
         }
 
-        document.getElementById('apiDocBtn').onclick = () => {
-            const doc = {
-                "base_url": window.location.origin,
-                "endpoints": [
-                    {
-                        "method": "POST",
-                        "path": "/api/tasks/upload",
-                        "desc": "Submit text generation task",
-                        "body": "application/json { text: string, system_prompt?: string }"
-                    },
-                    {
-                        "method": "GET",
-                        "path": "/api/tasks",
-                        "desc": "List all tasks"
-                    },
-                    {
-                        "method": "GET",
-                        "path": "/api/tasks/{task_id}",
-                        "desc": "Get task details & result"
-                    },
-                    {
-                        "method": "GET",
-                        "path": "/health",
-                        "desc": "Service health check"
-                    }
-                ]
-            };
-            document.getElementById('resultText').innerText = JSON.stringify(doc, null, 2);
-            document.querySelector('#resultModal .card-title').innerText = "API Documentation";
-            document.getElementById('resultModal').classList.add('active');
-        };
+        // --- API Functions ---
+        async function loadTasks() {
+            try {
+                const res = await fetch(`${API_BASE}/tasks`);
+                const tasks = await res.json();
+                renderQueue(tasks);
+            } catch (err) {
+                console.error("Load tasks error:", err);
+            }
+        }
 
-        // Health Check
+        async function uploadTask() {
+            const text = UI.inputText.value.trim();
+            if (!text) return;
+
+            UI.statusModal.classList.add('active');
+            updateStatusModal('loading', "Submitting...", "Adding your task to the queue...");
+            UI.submitBtn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/tasks/upload`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        system_prompt: UI.systemPrompt.value.trim() || undefined
+                    })
+                });
+
+                if (res.ok) {
+                    updateStatusModal('success', "Success! ✨", "Task submitted successfully.");
+                    UI.inputText.value = '';
+                    setTimeout(() => {
+                        UI.statusModal.classList.remove('active');
+                        loadTasks();
+                    }, 1200);
+                } else {
+                    updateStatusModal('error', "Submission Failed ❌", "Something went wrong on the server.");
+                    setTimeout(() => UI.statusModal.classList.remove('active'), 2000);
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                updateStatusModal('error', "Connection Error ⚠️", "Could not reach the server.");
+                setTimeout(() => UI.statusModal.classList.remove('active'), 2000);
+            } finally {
+                UI.submitBtn.disabled = false;
+            }
+        }
+
+        async function showResult(id) {
+            try {
+                const res = await fetch(`${API_BASE}/tasks/${id}`);
+                const data = await res.json();
+                let text = data.result;
+
+                UI.modalTitle.innerText = "Task Result";
+
+                try {
+                    const parsed = JSON.parse(text);
+                    text = parsed.text || text;
+                } catch (e) { }
+
+                UI.resultText.innerText = text || '(no result)';
+                UI.resultModal.classList.add('active');
+            } catch (err) {
+                console.error("Show result error:", err);
+            }
+        }
+
         async function checkHealth() {
             try {
                 const res = await fetch('/health');
                 const data = await res.json();
-                const dot = document.getElementById('healthDot');
-                dot.style.background = data.status === 'healthy' ? 'var(--success)' : 'var(--error)';
-                dot.style.boxShadow = `0 0 10px ${data.status === 'healthy' ? 'var(--success)' : 'var(--error)'}`;
-            } catch (e) { }
+                const healthy = data.status === 'healthy';
+
+                UI.healthDot.className = `w-4 h-4 rounded-full ${healthy ? 'bg-crayon-green' : 'bg-crayon-red'} shadow-md`;
+                UI.healthText.innerText = healthy ? 'Service Online' : 'Service Down';
+                UI.healthText.className = `text-headline-md font-bold ${healthy ? 'text-crayon-green' : 'text-crayon-red'}`;
+            } catch (e) {
+                UI.healthDot.className = 'w-4 h-4 rounded-full bg-crayon-red shadow-md';
+                UI.healthText.innerText = 'Connection Error';
+                UI.healthText.className = 'text-headline-md font-bold text-crayon-red';
+            }
         }
+
+        // --- Renderers ---
+        function renderQueue(tasks) {
+            if (tasks.length === 0) {
+                UI.queueBody.innerHTML = '<div class="text-center py-32 text-headline-md text-[#94a3b8] font-bold opacity-60">No tasks found yet...</div>';
+                return;
+            }
+
+            UI.queueBody.innerHTML = tasks.map((t, i) => {
+                const rotate = i % 2 === 0 ? 'rotate-[0.3deg]' : '-rotate-[0.3deg]';
+                const status = t.status.toLowerCase();
+                const colors = {
+                    completed: { text: 'crayon-green', bg: 'bg-[#f0fdf4]' },
+                    failed: { text: 'crayon-red', bg: 'bg-[#fef2f2]' },
+                    processing: { text: 'crayon-blue', bg: 'bg-[#eff6ff]' },
+                    not_started: { text: 'crayon-purple', bg: 'bg-[#f5f3ff]' },
+                    pending: { text: 'crayon-purple', bg: 'bg-[#f5f3ff]' }
+                };
+                const theme = colors[status] || colors.pending;
+                const preview = t.filename.length > 60 ? t.filename.slice(0, 60) + '...' : t.filename;
+
+                return `
+                    <div class="task-card flex items-center p-6 bg-surface hover:border-crayon-purple transition-colors shadow-sm ${rotate}">
+                        <div class="flex items-center gap-5 w-1/2">
+                            <div class="w-16 h-20 border-[3px] border-crayon-blue rounded-xl p-2 bg-surface flex shadow-sm organic-shape rotate-[-3deg] scribble-fill-purple opacity-20">
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-headline-md text-[#1A1A1A] leading-tight font-bold mb-1">${preview}</span>
+                                <div class="text-label-sm text-[#94a3b8] font-bold">${t.id.substring(0, 12)}</div>
+                            </div>
+                        </div>
+                        <div class="w-1/6 flex justify-center">
+                            <div class="px-4 py-2 ${theme.bg} border-[3px] border-${theme.text} text-${theme.text} font-bold rounded-2xl uppercase tracking-tight crayon-filter">
+                                ${status.replace('_', ' ')}
+                            </div>
+                        </div>
+                        <div class="w-1/4 flex items-center justify-center gap-4">
+                            <div class="flex-1 h-6 border-[3px] border-[#adc6ff] rounded-full overflow-hidden bg-surface p-[2px] crayon-filter">
+                                <div class="h-full rounded-full progress-fill shadow-sm" style="width:${t.progress}%"></div>
+                            </div>
+                            <span class="text-headline-md text-2xl text-[#1A1A1A] font-bold w-12 text-right">${status === 'completed' ? '' : t.progress + '%'}</span>
+                        </div>
+                        <div class="w-[10%] flex justify-center">
+                            ${status === 'completed' ? `
+                                <button onclick="showResult('${t.id}')" class="flex items-center gap-2 px-5 py-2.5 bg-white border-[3px] border-crayon-blue text-crayon-blue font-bold rounded-2xl hover:bg-crayon-blue hover:text-white transition-all shadow-sm crayon-filter">
+                                    <span class="material-symbols-outlined text-2xl">visibility</span>
+                                    VIEW
+                                </button>
+                            ` : '—'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- Event Listeners ---
+        UI.submitBtn.onclick = uploadTask;
+        UI.inputText.onkeydown = (e) => { if (e.ctrlKey && e.key === 'Enter') uploadTask(); };
+        UI.apiDocBtn.onclick = () => {
+            const doc = {
+                base_url: window.location.origin,
+                endpoints: [
+                    { method: "POST", path: "/api/tasks/upload", desc: "Submit text generation task", body: "{ text: string, system_prompt?: string }" },
+                    { method: "GET", path: "/api/tasks", desc: "List all tasks" },
+                    { method: "GET", path: "/api/tasks/{task_id}", desc: "Get task details & result" },
+                    { method: "GET", path: "/health", desc: "Service health" }
+                ],
+                example_usage: `curl -X POST -H 'Content-Type: application/json' -d '{"text": "Hello"}' ${window.location.origin}/api/tasks/upload`
+            };
+            UI.resultText.innerText = JSON.stringify(doc, null, 2);
+            UI.modalTitle.innerText = "API Documentation";
+            UI.resultModal.classList.add('active');
+        };
 
         // Init
         loadTasks();
