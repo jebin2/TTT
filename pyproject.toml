@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ttt-runner"
+version = "1.0.0"
+description = "A flexible text-to-text generation runner (Qwen/Qwen3.5-4B)"
+authors = [
+    { name = "Jebin Einstein", email = "jebineinstein@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+dependencies = [
+    "python-dotenv",
+    "requests",
+    "ollama",
+    "jebin_lib @ git+https://github.com/jebin2/lib.git",
+    "custom_logger @ git+https://github.com/jebin2/custom_logger.git"
+]
+
+[project.optional-dependencies]
+all = []
+
+[project.scripts]
+ttt-generate = "ttt.runner:main"
+
+[project.urls]
+Homepage = "https://github.com/jebin2/TTT"
+
+[tool.setuptools]
+packages = ["ttt"]

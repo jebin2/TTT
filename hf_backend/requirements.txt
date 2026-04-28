@@ -1,6 +1,0 @@
-Flask==3.0.0
-flask-cors==4.0.0
-werkzeug==3.0.1
-
-# TTT
-ttt-runner @ git+https://github.com/jebin2/TTT.git

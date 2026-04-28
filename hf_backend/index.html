@@ -4,234 +4,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text-to-Text Generator</title>
+    <title>TTT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@600;800&family=Permanent+Marker&family=Patrick+Hand&display=swap"
+        rel="stylesheet">
     <style>
+        :root {
+            /* Colors */
+            --bg: #334155;
+            --surface: #5e3329;
+            --surface-hover: #7c4436;
+            --border: #2d1a15;
+            --primary: #2d1a15;
+            --primary-light: #a36555;
+            --success: #14532d;
+            --success-light: #86efac;
+            --error: #7f1d1d;
+            --error-light: #fca5a5;
+            --text-main: #fde6d2;
+            --text-bg: #cbd5e1;
+            --text-dim: #f5d0b1;
+
+            /* Fonts */
+            --font-main: 'Inter', sans-serif;
+            --font-header: 'Patrick Hand', cursive;
+            --font-logo: 'Permanent Marker', cursive;
+
+            /* Sizes & Spacing */
+            --border-width: 3px;
+            --radius-card: 12px;
+            --radius-btn: 8px;
+            --radius-pill: 4px;
+            --radius-full: 999px;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+
+            /* Shadows */
+            --shadow-card: 4px 4px 0px 0px var(--border);
+            --shadow-btn: 3px 3px 0px 0px var(--border);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --bg: #0a0e27;
-            --surface: #141b3d;
-            --primary: #00ff88;
-            --secondary: #ff00ff;
-            --accent: #00d4ff;
-            --error: #ff1744;
-            --text: #ffffff;
-            --border: 4px;
+            font-family: var(--font-main);
         }
 
         body {
-            font-family: 'Space Grotesk', 'Courier New', monospace;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
+            background-color: var(--bg);
+            color: var(--text-bg);
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 1;
+            width: 90vw;
+            height: 90vh;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: auto 1fr;
+            gap: 1.5rem;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-            animation: slideDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        h1 {
-            font-size: clamp(2rem, 5vw, 4rem);
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 6px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-
-            0%,
-            100% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: var(--accent);
-            letter-spacing: 2px;
-        }
-
-        .input-section {
+        /* Paper Cards */
+        .card {
             background: var(--surface);
-            border: var(--border) solid var(--primary);
-            box-shadow: 8px 8px 0 var(--primary);
-            padding: 2rem;
-            margin-bottom: 3rem;
-            animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
+            border: var(--border-width) solid var(--border);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            padding: var(--spacing-lg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
         }
 
-        .input-section:hover {
+        .card:hover {
             transform: translate(-2px, -2px);
-            box-shadow: 12px 12px 0 var(--primary);
-            transition: all 0.3s ease;
+            box-shadow: 6px 6px 0px 0px var(--border);
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
+        /* Header Card */
+        .header-card {
+            grid-column: span 12;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2.5rem;
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .logo-group h1 {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 2.5rem;
+            color: var(--text-main);
+            letter-spacing: 0.05em;
+            transform: rotate(-2deg);
+            text-shadow: 2px 2px 0px var(--primary);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-main);
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            background: rgba(15, 23, 42, 0.1);
+            border-radius: 999px;
+            border: 1px solid var(--border);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        /* Input Card */
+        .input-card {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .field-label {
-            color: var(--accent);
-            font-weight: 900;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-dim);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            letter-spacing: 0.05em;
         }
 
         textarea {
             width: 100%;
-            background: var(--bg);
-            border: 3px solid var(--accent);
-            color: var(--text);
-            padding: 1rem;
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            line-height: 1.6;
-            resize: vertical;
-            margin-bottom: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: var(--border-width) solid var(--border);
+            border-radius: var(--radius-btn);
+            color: var(--text-main);
+            padding: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            resize: none;
             outline: none;
-            transition: border-color 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         textarea:focus {
-            border-color: var(--primary);
+            border-color: var(--primary-light);
+            background: rgba(0, 0, 0, 0.3);
         }
 
-        #inputText {
-            min-height: 150px;
-        }
+        #systemPrompt { height: 80px; }
+        #inputText { flex: 1; min-height: 150px; }
 
-        #systemPrompt {
-            min-height: 80px;
-        }
-
-        .btn {
+        .submit-btn {
             background: var(--primary);
-            color: var(--bg);
-            border: var(--border) solid var(--bg);
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 900;
-            text-transform: uppercase;
+            color: var(--text-main);
+            border: var(--border-width) solid var(--border);
+            padding: var(--spacing-md);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 4px 4px 0 var(--bg);
-            letter-spacing: 1px;
+            box-shadow: var(--shadow-btn);
+            text-transform: uppercase;
         }
 
-        .btn:hover:not(:disabled) {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 var(--bg);
+        .submit-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px 0px var(--border);
         }
 
-        .btn:active:not(:disabled) {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0 var(--bg);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
+        .submit-btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        .btn-secondary {
-            background: var(--accent);
+        /* Queue Card */
+        .queue-card {
+            grid-column: span 8;
+            display: flex;
+            flex-direction: column;
         }
 
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            box-shadow: 3px 3px 0 var(--bg);
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
         }
 
-        .btn-small:hover:not(:disabled) {
-            box-shadow: 4px 4px 0 var(--bg);
+        .card-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--text-main);
+            letter-spacing: 0.02em;
         }
 
-        .table-section {
-            animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s both;
+        .refresh-btn {
+            background: var(--primary);
+            border: var(--border-width) solid var(--border);
+            color: var(--text-main);
+            padding: 0.4rem 1.2rem;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 0px 0px var(--border);
         }
 
-        .table-wrapper {
-            overflow-x: auto;
-            background: var(--surface);
-            border: var(--border) solid var(--secondary);
-            box-shadow: 8px 8px 0 var(--secondary);
+        .refresh-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px 0px var(--border);
+            opacity: 0.95;
+        }
+
+        /* Table */
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-right: -0.5rem;
+            padding-right: 0.5rem;
         }
 
         table {
@@ -239,352 +255,205 @@
             border-collapse: collapse;
         }
 
-        thead {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-        }
-
         th {
-            padding: 1.5rem 1rem;
             text-align: left;
-            font-weight: 900;
+            padding: 0.75rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-main);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--bg);
-            border-right: 3px solid var(--bg);
-        }
-
-        th:last-child {
-            border-right: none;
-        }
-
-        tbody tr {
-            border-bottom: 2px solid rgba(0, 212, 255, 0.2);
-            transition: all 0.3s ease;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        tbody tr:hover {
-            background: rgba(0, 255, 136, 0.1);
+            border-bottom: var(--border-width) solid var(--border);
         }
 
         td {
-            padding: 1.5rem 1rem;
-            color: var(--text);
+            padding: 1rem 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(253, 230, 210, 0.1);
+            color: var(--text-main);
         }
 
-        .status {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border: 3px solid;
-            font-weight: 900;
+        .status-pill {
+            padding: 0.25rem 0.6rem;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 800;
             text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
         }
 
-        .status-not_started {
-            background: var(--bg);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
+        .pill-not_started { background: rgba(15, 23, 42, 0.15); color: var(--text-main); }
+        .pill-processing { background: var(--primary-light); color: var(--primary); }
+        .pill-completed { background: var(--success-light); color: var(--success); }
+        .pill-failed { background: var(--error-light); color: var(--error); }
 
-        .status-processing {
-            background: var(--bg);
-            border-color: var(--primary);
-            color: var(--primary);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
-        }
-
-        .status-completed {
+        .btn-view {
             background: var(--primary);
-            border-color: var(--primary);
-            color: var(--bg);
-        }
-
-        .status-failed {
-            background: var(--error);
-            border-color: var(--error);
-            color: var(--text);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--accent);
-            font-size: 1.2rem;
-        }
-
-        .progress-bar-wrap {
-            background: rgba(0, 212, 255, 0.1);
-            border: 2px solid var(--accent);
-            height: 8px;
-            margin-top: 6px;
-            width: 120px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--primary);
-            transition: width 0.4s ease;
-        }
-
-        .refresh-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--secondary);
-            border: var(--border) solid var(--bg);
-            box-shadow: 4px 4px 0 var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text-main);
+            padding: 0.3rem 1rem;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            font-size: 0.75rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            z-index: 1000;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 0px 0px var(--border);
         }
 
-        .refresh-btn:hover {
-            transform: rotate(180deg) scale(1.1);
-            box-shadow: 6px 6px 0 var(--bg);
+        .btn-view:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 4px 4px 0px 0px var(--border);
+            opacity: 0.95;
         }
 
         /* Modal */
         .modal {
-            display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 14, 39, 0.95);
-            z-index: 2000;
-            animation: fadeIn 0.3s ease;
-            overflow-y: auto;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 2rem;
         }
 
         .modal.active {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
         }
 
         .modal-content {
             background: var(--surface);
-            border: var(--border) solid var(--primary);
-            box-shadow: 12px 12px 0 var(--primary);
-            max-width: 900px;
+            border: var(--border-width) solid var(--border);
             width: 100%;
-            max-height: 85vh;
-            position: relative;
-            animation: modalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 800px;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
             display: flex;
             flex-direction: column;
+            max-height: 80vh;
+            box-shadow: var(--shadow-card);
         }
 
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.9);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .status-modal-content {
+            max-width: 400px;
+            text-align: center;
+            padding: var(--spacing-lg);
         }
+        .status-icon { margin: 0 auto var(--spacing-md); font-size: 3rem; }
 
+        /* Utilities */
+        .flex-group { display: flex; gap: var(--spacing-md); align-items: center; }
+        .btn-api-doc { cursor: pointer; background: var(--primary-light); border-color: var(--primary); }
+        .text-bold { font-weight: 700; color: var(--text-main); }
+        .text-dimmed { font-size: 0.8rem; color: var(--text-main); opacity: 0.8; }
+        .text-center { text-align: center; padding: 3rem; color: var(--text-bg); }
+        .progress-container { width: 100px; height: 4px; background: rgba(253, 230, 210, 0.1); border-radius: 2px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--text-main); }
+        
         .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2rem 2rem 1rem 2rem;
-            border-bottom: 3px solid var(--primary);
-            background: var(--surface);
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
 
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--primary);
-            text-transform: uppercase;
-        }
-
-        .modal-close {
-            background: var(--error);
-            color: var(--text);
-            border: 3px solid var(--bg);
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            font-size: 1.5rem;
-            font-weight: 900;
-            transition: all 0.2s ease;
-            box-shadow: 3px 3px 0 var(--bg);
-        }
-
-        .modal-close:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 5px 5px 0 var(--bg);
-        }
-
-        .code-block {
-            background: var(--bg);
-            border: 3px solid var(--accent);
-            padding: 1.5rem;
-            overflow-y: auto;
-            margin: 1.5rem 2rem 2rem 2rem;
-            position: relative;
-            flex: 1;
-        }
-
-        .code-block code {
-            font-family: 'Courier New', monospace;
-            color: var(--primary);
-            font-size: 0.95rem;
-            line-height: 1.6;
+        .modal-body { padding: 2rem; overflow-y: auto; }
+        
+        pre {
+            background: #47271f;
+            border: var(--border-width) solid var(--border);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-main);
             white-space: pre-wrap;
-            word-break: break-word;
+            word-break: break-all;
         }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
         .copy-btn {
-            position: sticky;
-            top: 0.5rem;
-            float: right;
-            background: var(--accent);
-            color: var(--bg);
-            border: 3px solid var(--bg);
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
-            font-weight: 900;
+            background: var(--primary);
+            color: var(--text-main);
+            border: 2px solid var(--border);
+            padding: 0.2rem 0.8rem;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            font-size: 0.7rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 3px 3px 0 var(--bg);
-            z-index: 5;
+            box-shadow: 2px 2px 0 var(--border);
+            transition: all 0.2s;
         }
 
         .copy-btn:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 4px 4px 0 var(--bg);
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 var(--border);
         }
 
-        .copy-btn.copied {
-            background: var(--primary);
-        }
-
-        .notification {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            padding: 1.5rem 2rem;
-            background: var(--primary);
-            color: var(--bg);
-            border: var(--border) solid var(--bg);
-            box-shadow: 6px 6px 0 var(--bg);
-            font-weight: 900;
-            z-index: 2000;
-            animation: slideInRight 0.5s ease, slideOutRight 0.5s ease 3.5s;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOutRight {
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .input-section,
-            .table-wrapper {
-                box-shadow: 4px 4px 0 var(--primary);
-            }
-
-            th,
-            td {
-                padding: 1rem 0.5rem;
-                font-size: 0.9rem;
-            }
-
-            .modal-content {
-                padding: 0;
-            }
-
-            .code-block {
-                margin: 1rem;
-            }
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; height: auto; overflow-y: auto; padding: 1rem; }
+            .card { grid-column: span 12 !important; }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <header>
-            <h1>Text-to-Text Generator</h1>
-            <p class="subtitle">Qwen3.5-4B &bull; Submit &bull; Queue &bull; Generate</p>
+        <!-- Header -->
+        <header class="card header-card">
+            <div class="logo-group">
+                <h1>TTT</h1>
+            </div>
+            <div class="flex-group">
+                <div class="status-badge btn-api-doc" id="apiDocBtn">
+                    <span class="text-bold">API DOC</span>
+                </div>
+                <div class="status-badge">
+                    <div class="status-dot" id="healthDot"></div>
+                    <span id="healthText">Service Online</span>
+                </div>
+            </div>
         </header>
 
-        <div class="input-section">
-            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Submit Text Task</h2>
+        <!-- Input -->
+        <div class="card input-card">
+            <div class="card-header">
+                <span class="card-title">Generate</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">System Prompt</span>
+                <textarea id="systemPrompt" placeholder="You are a helpful assistant."></textarea>
+            </div>
 
-            <div class="field-label">System Prompt (optional)</div>
-            <textarea id="systemPrompt" placeholder="You are a helpful assistant."></textarea>
+            <div class="field-group" style="flex:1; display:flex; flex-direction:column;">
+                <span class="field-label">User Prompt</span>
+                <textarea id="inputText" placeholder="What should I generate?"></textarea>
+            </div>
 
-            <div class="field-label">Input Text *</div>
-            <textarea id="inputText" placeholder="Enter your prompt or text here..."></textarea>
-
-            <button class="btn" id="submitBtn" style="width: 100%;">
-                🚀 Submit &amp; Process
-            </button>
+            <button class="submit-btn" id="submitBtn">🚀 Submit Task</button>
         </div>
 
-        <div class="table-section">
-            <h2 style="margin-bottom: 1.5rem; color: var(--secondary);">Processing Queue</h2>
-            <div class="table-wrapper">
+        <!-- Queue -->
+        <div class="card queue-card">
+            <div class="card-header">
+                <span class="card-title">Recent Activity</span>
+                <button class="refresh-btn" onclick="loadTasks()">Refresh</button>
+            </div>
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
@@ -592,57 +461,63 @@
                             <th>Status</th>
                             <th>Progress</th>
                             <th>Est. Wait</th>
-                            <th>Result</th>
-                            <th>Created</th>
-                            <th>Processed</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody id="tasksTable">
-                        <tr>
-                            <td colspan="7" class="empty-state">No tasks submitted yet. Enter some text above!</td>
-                        </tr>
+                    <tbody id="queueBody">
+                        <!-- Data injected here -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <button class="refresh-btn" id="refreshBtn" title="Refresh">🔄</button>
-
     <!-- Modal -->
     <div class="modal" id="resultModal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title">📄 Result</div>
-                <button class="modal-close" onclick="closeModal()">×</button>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <span class="card-title">Result</span>
+                    <button class="copy-btn" id="copyBtn" onclick="copyResult()">📋 Copy</button>
+                </div>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyResult()">📋 Copy</button>
-                <code id="resultCode"></code>
+            <div class="modal-body">
+                <pre id="resultText"></pre>
             </div>
         </div>
     </div>
 
-    <script>
-        const API_URL = '/api';
-        const resultStore = new Map();
+    <!-- Status Modal -->
+    <div class="modal" id="statusModal">
+        <div class="modal-content status-modal-content">
+            <div class="status-icon">🚀</div>
+            <h2 class="card-title" id="statusMessage">Submitting...</h2>
+            <p class="text-dimmed" id="statusSubMessage">Please wait while we queue your task.</p>
+        </div>
+    </div>
 
+    <script>
+        const API_BASE = '/api';
+        
+        // Elements
         const submitBtn = document.getElementById('submitBtn');
         const inputText = document.getElementById('inputText');
         const systemPrompt = document.getElementById('systemPrompt');
+        const queueBody = document.getElementById('queueBody');
+        const statusModal = document.getElementById('statusModal');
+        const statusMessage = document.getElementById('statusMessage');
 
-        async function submitTask() {
+        async function uploadTask() {
             const text = inputText.value.trim();
-            if (!text) {
-                showNotification('Please enter some input text.', 'error');
-                return;
-            }
+            if (!text) return;
 
+            statusModal.classList.add('active');
+            statusMessage.innerText = "Submitting...";
             submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Submitting...';
 
             try {
-                const response = await fetch(`${API_URL}/submit`, {
+                const res = await fetch(`${API_BASE}/tasks/upload`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -651,112 +526,82 @@
                     })
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    showNotification(`Task submitted! ID: ${data.id.slice(0, 8)}...`);
+                if (res.ok) {
+                    statusMessage.innerText = "Success!";
                     inputText.value = '';
-                    loadTasks();
+                    setTimeout(() => {
+                        statusModal.classList.remove('active');
+                        loadTasks();
+                    }, 800);
                 } else {
-                    showNotification(data.error || 'Submission failed', 'error');
+                    statusMessage.innerText = "Submission Failed";
+                    setTimeout(() => statusModal.classList.remove('active'), 1500);
                 }
-            } catch (error) {
-                showNotification('Network error: ' + error.message, 'error');
+            } catch (err) {
+                statusMessage.innerText = "Connection Error";
+                setTimeout(() => statusModal.classList.remove('active'), 1500);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Submit & Process';
             }
         }
 
-        submitBtn.addEventListener('click', submitTask);
-
-        inputText.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') submitTask();
-        });
+        submitBtn.onclick = uploadTask;
+        inputText.onkeydown = (e) => { if (e.ctrlKey && e.key === 'Enter') uploadTask(); };
 
         async function loadTasks() {
             try {
-                const response = await fetch(`${API_URL}/tasks`);
-                const tasks = await response.json();
-
-                const tbody = document.getElementById('tasksTable');
-                resultStore.clear();
-
-                if (tasks.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No tasks submitted yet. Enter some text above!</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = tasks.map(task => {
-                    if (task.result && task.result !== 'HIDDEN_IN_LIST_VIEW') {
-                        resultStore.set(task.id, task.result);
-                    }
-
-                    const inputPreview = task.input_text.length > 60
-                        ? task.input_text.slice(0, 60) + '...'
-                        : task.input_text;
-
-                    let estWait = '—';
-                    if (task.status === 'not_started' && task.estimated_start_seconds !== null) {
-                        const s = task.estimated_start_seconds;
-                        if (s < 60) estWait = `${s}s`;
-                        else if (s < 3600) {
-                            const m = Math.floor(s / 60), sec = s % 60;
-                            estWait = sec > 0 ? `${m}m ${sec}s` : `${m}m`;
-                        } else {
-                            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
-                            estWait = m > 0 ? `${h}h ${m}m` : `${h}h`;
-                        }
-                        if (task.queue_position) estWait = `#${task.queue_position} (${estWait})`;
-                    } else if (task.status === 'processing') {
-                        estWait = '⏳ Processing...';
-                    }
-
-                    const progress = task.progress || 0;
-                    const progressHtml = task.status === 'processing' || (task.status === 'not_started' && progress > 0)
-                        ? `<div>${progress}%</div>
-                           <div class="progress-bar-wrap">
-                             <div class="progress-bar-fill" style="width:${progress}%"></div>
-                           </div>
-                           <div style="font-size:0.75rem;color:var(--accent);margin-top:4px">${task.progress_text || ''}</div>`
-                        : task.status === 'completed' ? '✅ 100%' : '—';
-
-                    const resultHtml = task.status === 'completed'
-                        ? `<button class="btn btn-small btn-secondary" onclick="showResult('${task.id}')">Show</button>`
-                        : task.status === 'failed'
-                            ? `<button class="btn btn-small" style="background:var(--error)" onclick="showResult('${task.id}')">Error</button>`
-                            : '—';
-
-                    return `
-                        <tr>
-                            <td><strong>${inputPreview}</strong></td>
-                            <td><span class="status status-${task.status}">${task.status.replace('_', ' ')}</span></td>
-                            <td>${progressHtml}</td>
-                            <td>${estWait}</td>
-                            <td>${resultHtml}</td>
-                            <td>${new Date(task.created_at).toLocaleString()}</td>
-                            <td>${task.processed_at ? new Date(task.processed_at).toLocaleString() : '—'}</td>
-                        </tr>`;
-                }).join('');
-            } catch (error) {
-                console.error('Error loading tasks:', error);
-            }
+                const res = await fetch(`${API_BASE}/tasks`);
+                const tasks = await res.json();
+                renderQueue(tasks);
+            } catch (err) { console.error(err); }
         }
 
-        async function showResult(taskId) {
-            // Fetch full result from individual endpoint
-            try {
-                const response = await fetch(`${API_URL}/tasks/${taskId}`);
-                const task = await response.json();
-
-                const modal = document.getElementById('resultModal');
-                const code = document.getElementById('resultCode');
-                code.textContent = task.result || '(no result)';
-                resultStore.set(taskId, task.result || '');
-                modal.classList.add('active');
-            } catch (e) {
-                showNotification('Failed to load result', 'error');
+        function renderQueue(files) {
+            if (files.length === 0) {
+                queueBody.innerHTML = '<tr><td colspan="5" class="text-center">No tasks found</td></tr>';
+                return;
             }
+            queueBody.innerHTML = files.map(f => {
+                let estWait = '—';
+                if (f.status === 'not_started' && f.estimated_start_seconds !== null) {
+                    const s = f.estimated_start_seconds;
+                    estWait = s < 60 ? `${s}s` : `${Math.floor(s/60)}m`;
+                    if (f.queue_position) estWait = `#${f.queue_position} (${estWait})`;
+                } else if (f.status === 'processing') {
+                    estWait = '⏳ Processing...';
+                }
+
+                const preview = f.filename.length > 50 ? f.filename.slice(0, 50) + '...' : f.filename;
+
+                return `
+                <tr>
+                    <td class="text-bold">${preview}</td>
+                    <td><span class="status-pill pill-${f.status}">${f.status.replace('_', ' ')}</span></td>
+                    <td>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width:${f.progress}%"></div>
+                        </div>
+                    </td>
+                    <td>${estWait}</td>
+                    <td>
+                        ${f.status === 'completed' ? `<button class="btn-view" onclick="showResult('${f.id}')">View</button>` : '—'}
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function showResult(id) {
+            const res = await fetch(`${API_BASE}/tasks/${id}`);
+            const data = await res.json();
+            let text = data.result;
+
+            try {
+                const parsed = JSON.parse(text);
+                text = parsed.text || text;
+            } catch (e) { }
+
+            document.getElementById('resultText').innerText = text || '(no result)';
+            document.getElementById('resultModal').classList.add('active');
         }
 
         function closeModal() {
@@ -764,34 +609,63 @@
         }
 
         function copyResult() {
-            const code = document.getElementById('resultCode');
-            const btn = event.target;
-            navigator.clipboard.writeText(code.textContent).then(() => {
-                const orig = btn.textContent;
-                btn.textContent = '✓ Copied!';
-                btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+            const text = document.getElementById('resultText').innerText;
+            const btn = document.getElementById('copyBtn');
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.innerText;
+                btn.innerText = '✓ Copied!';
+                setTimeout(() => { btn.innerText = orig; }, 2000);
             });
         }
 
-        document.getElementById('resultModal').addEventListener('click', (e) => {
-            if (e.target.id === 'resultModal') closeModal();
-        });
+        document.getElementById('apiDocBtn').onclick = () => {
+            const doc = {
+                "base_url": window.location.origin,
+                "endpoints": [
+                    {
+                        "method": "POST",
+                        "path": "/api/tasks/upload",
+                        "desc": "Submit text generation task",
+                        "body": "application/json { text: string, system_prompt?: string }"
+                    },
+                    {
+                        "method": "GET",
+                        "path": "/api/tasks",
+                        "desc": "List all tasks"
+                    },
+                    {
+                        "method": "GET",
+                        "path": "/api/tasks/{task_id}",
+                        "desc": "Get task details & result"
+                    },
+                    {
+                        "method": "GET",
+                        "path": "/health",
+                        "desc": "Service health check"
+                    }
+                ]
+            };
+            document.getElementById('resultText').innerText = JSON.stringify(doc, null, 2);
+            document.querySelector('#resultModal .card-title').innerText = "API Documentation";
+            document.getElementById('resultModal').classList.add('active');
+        };
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
+        // Health Check
+        async function checkHealth() {
+            try {
+                const res = await fetch('/health');
+                const data = await res.json();
+                const dot = document.getElementById('healthDot');
+                dot.style.background = data.status === 'healthy' ? 'var(--success)' : 'var(--error)';
+                dot.style.boxShadow = `0 0 10px ${data.status === 'healthy' ? 'var(--success)' : 'var(--error)'}`;
+            } catch (e) { }
+        }
 
-        document.getElementById('refreshBtn').addEventListener('click', loadTasks);
-
-        // Auto-refresh every 5 seconds when tasks are processing
-        setInterval(async () => {
-            const rows = document.querySelectorAll('.status-processing, .status-not_started');
-            if (rows.length > 0) loadTasks();
-        }, 5000);
-
-        // Initial load
+        // Init
         loadTasks();
+        setInterval(loadTasks, 5000);
+        setInterval(checkHealth, 10000);
+        window.onclick = (e) => { if (e.target.classList.contains('modal')) closeModal(); };
     </script>
 </body>
 
