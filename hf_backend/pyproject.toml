@@ -18,3 +18,6 @@ dependencies = [
 
 [project.scripts]
 ttt-backend = "app.main:app"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
