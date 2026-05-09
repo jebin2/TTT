@@ -3,14 +3,14 @@ from datetime import datetime, timedelta
 from app.core.config import settings
 from custom_logger import logger_config as logger
 
-async def insert_task(task_id: str, input_text: str, system_prompt: str, status: str, hide_from_ui: int):
+async def insert_task(task_id: str, input_text: str, system_prompt: str, status: str, hide_from_ui: int, model: str = 'qwen'):
     async with aiosqlite.connect(settings.DATABASE_FILE) as db:
         await db.execute('''INSERT INTO text_tasks 
-                     (id, input_text, system_prompt, status, created_at, hide_from_ui)
-                     VALUES (?, ?, ?, ?, ?, ?)''',
-                  (task_id, input_text, system_prompt, status, datetime.now().isoformat(), hide_from_ui))
+                     (id, input_text, system_prompt, model, status, created_at, hide_from_ui)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                  (task_id, input_text, system_prompt, model, status, datetime.now().isoformat(), hide_from_ui))
         await db.commit()
-    logger.debug(f"Inserted task (ID: {task_id}) into database.")
+    logger.debug(f"Inserted task (ID: {task_id}, model: {model}) into database.")
 
 async def update_status(task_id: str, status: str, result: str = None, error: str = None):
     async with aiosqlite.connect(settings.DATABASE_FILE) as db:

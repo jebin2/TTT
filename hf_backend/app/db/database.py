@@ -9,6 +9,7 @@ async def init_db():
                      (id TEXT PRIMARY KEY,
                       input_text TEXT NOT NULL,
                       system_prompt TEXT,
+                      model TEXT DEFAULT 'qwen',
                       status TEXT NOT NULL,
                       result TEXT,
                       created_at TEXT NOT NULL,

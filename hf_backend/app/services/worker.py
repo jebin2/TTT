@@ -1,5 +1,7 @@
 import asyncio
 import json
+import subprocess
+import shutil
 from app.core.config import settings
 from custom_logger import logger_config as logger
 from app.db import crud
@@ -33,9 +35,7 @@ async def worker_loop():
         await loop.run_in_executor(None, lambda: initiate({'text': 'Hi', 'model': 'qwen', 'max_new_tokens': 1}))
         logger.info("✅ Qwen model ready. Monitoring for new tasks...")
     except Exception as e:
-        logger.error(f"❌ Failed to load model: {e}")
-        worker_running = False
-        return
+        logger.warning(f"⚠️ Qwen model not available (opencode-only tasks will still work): {e}")
 
     while worker_running:
         logger.debug("Worker loop iteration, checking for files...")
@@ -48,8 +48,9 @@ async def worker_loop():
                 task_id = row['id']
                 input_text = row['input_text']
                 system_prompt = row['system_prompt'] or "You are a helpful assistant."
+                model = row.get('model', 'qwen')
                 
-                logger.info(f"\n{'='*60}\nProcessing task: {task_id}\n📌 Input: {input_text[:100]}...\n{'='*60}")
+                logger.info(f"\n{'='*60}\nProcessing task: {task_id} (model: {model})\n📌 Input: {input_text[:100]}...\n{'='*60}")
                 
                 await crud.update_status(task_id, 'processing')
                 
@@ -63,21 +64,31 @@ async def worker_loop():
 
                 try:
                     await crud.update_progress(task_id, 5, "Starting...")
-                    
-                    result = await loop.run_in_executor(None, lambda: initiate(
-                        {
-                            'text': input_text,
-                            'system_prompt': system_prompt,
-                            'model': 'qwen',
-                        },
-                        progress_callback=progress_cb
-                    ))
 
-                    if result:
-                        logger.success(f"Successfully processed: {task_id}")
-                        await crud.update_status(task_id, 'completed', result=json.dumps(result))
+                    if model == 'opencode':
+                        await crud.update_progress(task_id, 10, "Running opencode...")
+                        result = await loop.run_in_executor(None, lambda: _run_opencode(input_text))
+                        if result:
+                            logger.success(f"Successfully processed (opencode): {task_id}")
+                            await crud.update_progress(task_id, 100, "Completed")
+                            await crud.update_status(task_id, 'completed', result=json.dumps({"response": result}))
+                        else:
+                            raise Exception("opencode returned empty result")
                     else:
-                        raise Exception("initiate() returned empty result")
+                        result = await loop.run_in_executor(None, lambda: initiate(
+                            {
+                                'text': input_text,
+                                'system_prompt': system_prompt,
+                                'model': 'qwen',
+                            },
+                            progress_callback=progress_cb
+                        ))
+
+                        if result:
+                            logger.success(f"Successfully processed: {task_id}")
+                            await crud.update_status(task_id, 'completed', result=json.dumps(result))
+                        else:
+                            raise Exception("initiate() returned empty result")
 
                 except Exception as e:
                     logger.error(f"Failed to process {task_id}: {str(e)}")
@@ -89,3 +100,19 @@ async def worker_loop():
         except Exception as e:
             logger.error(f"Worker error: {str(e)}")
             await asyncio.sleep(settings.POLL_INTERVAL)
+
+
+def _run_opencode(text: str) -> str:
+    if not shutil.which('opencode'):
+        raise FileNotFoundError(
+            "opencode CLI not found. Install it from https://opencode.ai"
+        )
+    result = subprocess.run(
+        ['opencode', 'run', text],
+        capture_output=True,
+        text=True,
+        timeout=300
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"opencode failed: {result.stderr.strip()}")
+    return result.stdout.strip()

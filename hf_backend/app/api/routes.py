@@ -22,8 +22,9 @@ async def submit_task(request: Request):
     input_text = data['text'].strip()
     system_prompt = data.get('system_prompt', '').strip() or None
     hide_from_ui = 1 if data.get('hide_from_ui') else 0
+    model = (data.get('model') or 'qwen').strip().lower()
 
-    await crud.insert_task(task_id, input_text, system_prompt, 'not_started', hide_from_ui)
+    await crud.insert_task(task_id, input_text, system_prompt, 'not_started', hide_from_ui, model)
     
     await start_worker()
 
@@ -31,6 +32,7 @@ async def submit_task(request: Request):
         'id': task_id,
         'filename': input_text[:50] + ("..." if len(input_text) > 50 else ""),
         'status': 'not_started',
+        'model': model,
         'message': 'Task submitted successfully'
     })
 

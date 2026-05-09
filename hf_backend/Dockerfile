@@ -14,10 +14,15 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     zstd \
     procps \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
+
+# Install opencode CLI
+RUN npm install -g opencode-ai
 
 # Copy project files
 COPY pyproject.toml .

@@ -783,12 +783,12 @@
             const doc = {
                 base_url: window.location.origin,
                 endpoints: [
-                    { method: "POST", path: "/api/tasks/upload", desc: "Submit text generation task", body: "{ text: string, system_prompt?: string }" },
+                    { method: "POST", path: "/api/tasks/upload", desc: "Submit text generation task", body: "{ text: string, system_prompt?: string, model?: 'qwen' | 'opencode' }" },
                     { method: "GET", path: "/api/tasks", desc: "List all tasks" },
                     { method: "GET", path: "/api/tasks/{task_id}", desc: "Get task details & result" },
                     { method: "GET", path: "/health", desc: "Service health" }
                 ],
-                example_usage: `curl -X POST -H 'Content-Type: application/json' -d '{"text": "Hello"}' ${window.location.origin}/api/tasks/upload`
+                example_usage: `curl -X POST -H 'Content-Type: application/json' -d '{"text": "Hello"}' ${window.location.origin}/api/tasks/upload` + '\n' + `curl -X POST -H 'Content-Type: application/json' -d '{"text": "list files", "model": "opencode"}' ${window.location.origin}/api/tasks/upload`
             };
             UI.resultText.innerText = JSON.stringify(doc, null, 2);
             UI.modalTitle.innerText = "API Documentation";
