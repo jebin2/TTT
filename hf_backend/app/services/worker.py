@@ -110,8 +110,13 @@ def _run_opencode(text: str) -> str:
         text=True,
         timeout=300
     )
-    if result.stderr:
-        logger.debug(f"opencode stderr: {result.stderr.strip()}")
+    stdout = result.stdout.strip()
+    stderr = result.stderr.strip()
+
+    logger.info(f"opencode stdout:\n{stdout}")
+    if stderr:
+        logger.info(f"opencode stderr:\n{stderr}")
+
     if result.returncode != 0:
-        raise RuntimeError(f"opencode failed: {result.stderr.strip()}")
-    return result.stdout.strip()
+        raise RuntimeError(f"opencode failed: {stderr or 'unknown error'}")
+    return stdout
