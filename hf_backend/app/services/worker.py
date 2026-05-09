@@ -68,12 +68,9 @@ async def worker_loop():
                     if model == 'opencode':
                         await crud.update_progress(task_id, 10, "Running opencode...")
                         result = await loop.run_in_executor(None, lambda: _run_opencode(input_text))
-                        if result:
-                            logger.success(f"Successfully processed (opencode): {task_id}")
-                            await crud.update_progress(task_id, 100, "Completed")
-                            await crud.update_status(task_id, 'completed', result=json.dumps({"response": result}))
-                        else:
-                            raise Exception("opencode returned empty result")
+                        logger.success(f"Successfully processed (opencode): {task_id}")
+                        await crud.update_progress(task_id, 100, "Completed")
+                        await crud.update_status(task_id, 'completed', result=json.dumps({"response": result}))
                     else:
                         result = await loop.run_in_executor(None, lambda: initiate(
                             {
@@ -113,6 +110,8 @@ def _run_opencode(text: str) -> str:
         text=True,
         timeout=300
     )
+    if result.stderr:
+        logger.debug(f"opencode stderr: {result.stderr.strip()}")
     if result.returncode != 0:
         raise RuntimeError(f"opencode failed: {result.stderr.strip()}")
     return result.stdout.strip()
