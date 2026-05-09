@@ -105,7 +105,7 @@ def _run_opencode(text: str) -> str:
             "opencode CLI not found. Install it from https://opencode.ai"
         )
     result = subprocess.run(
-        ['opencode', 'run', text],
+        ['opencode', 'run', '--model', 'opencode/big-pickle', text],
         capture_output=True,
         text=True,
         timeout=300
