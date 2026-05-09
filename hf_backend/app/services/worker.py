@@ -1,6 +1,5 @@
 import asyncio
 import json
-import subprocess
 import shutil
 from app.core.config import settings
 from custom_logger import logger_config as logger
@@ -67,7 +66,7 @@ async def worker_loop():
 
                     if model == 'opencode':
                         await crud.update_progress(task_id, 10, "Running opencode...")
-                        result = await loop.run_in_executor(None, lambda: _run_opencode(input_text))
+                        result = await _run_opencode(input_text)
                         logger.success(f"Successfully processed (opencode): {task_id}")
                         await crud.update_progress(task_id, 100, "Completed")
                         await crud.update_status(task_id, 'completed', result=json.dumps({"response": result}))
@@ -99,24 +98,47 @@ async def worker_loop():
             await asyncio.sleep(settings.POLL_INTERVAL)
 
 
-def _run_opencode(text: str) -> str:
+async def _run_opencode(text: str) -> str:
     if not shutil.which('opencode'):
         raise FileNotFoundError(
             "opencode CLI not found. Install it from https://opencode.ai"
         )
-    result = subprocess.run(
-        ['opencode', 'run', '--model', 'opencode/big-pickle', text],
-        capture_output=True,
-        text=True,
-        timeout=300
+
+    proc = await asyncio.create_subprocess_exec(
+        'opencode', 'run', '--print-logs', '--model', 'opencode/big-pickle', text,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
     )
-    stdout = result.stdout.strip()
-    stderr = result.stderr.strip()
 
-    logger.info(f"opencode stdout:\n{stdout}")
-    if stderr:
-        logger.info(f"opencode stderr:\n{stderr}")
+    stdout_lines = []
+    stderr_lines = []
 
-    if result.returncode != 0:
-        raise RuntimeError(f"opencode failed: {stderr or 'unknown error'}")
+    async def _read_stream(stream, lines, label):
+        while True:
+            line = await stream.readline()
+            if not line:
+                break
+            decoded = line.decode(errors='replace').rstrip()
+            lines.append(decoded)
+            logger.info(f"opencode {label}: {decoded}")
+
+    try:
+        await asyncio.wait_for(
+            asyncio.gather(
+                _read_stream(proc.stdout, stdout_lines, "stdout"),
+                _read_stream(proc.stderr, stderr_lines, "stderr"),
+            ),
+            timeout=120
+        )
+    except asyncio.TimeoutError:
+        proc.kill()
+        raise TimeoutError("opencode timed out after 120s")
+
+    await proc.wait()
+
+    stdout = '\n'.join(stdout_lines)
+    stderr = '\n'.join(stderr_lines)
+
+    if proc.returncode != 0:
+        raise RuntimeError(f"opencode failed ({proc.returncode}): {stderr or 'unknown error'}")
     return stdout
