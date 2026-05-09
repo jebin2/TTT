@@ -48,7 +48,7 @@ async def worker_loop():
                 task_id = row['id']
                 input_text = row['input_text']
                 system_prompt = row['system_prompt'] or "You are a helpful assistant."
-                model = row.get('model', 'qwen')
+                model = row['model'] if 'model' in row.keys() else 'qwen'
                 
                 logger.info(f"\n{'='*60}\nProcessing task: {task_id} (model: {model})\n📌 Input: {input_text[:100]}...\n{'='*60}")
                 
