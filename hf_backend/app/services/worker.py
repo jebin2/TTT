@@ -26,13 +26,18 @@ async def start_worker():
 async def worker_loop():
     global worker_running
     logger.info("TTT Worker started. Monitoring for new tasks...")
-    
+
+    from ttt.runner import initiate
+    loop = asyncio.get_event_loop()
+
     try:
-        from ttt.runner import initiate
-        # Warm up: load the engine
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, lambda: initiate({'text': 'Hi', 'model': 'qwen', 'max_new_tokens': 1}))
-        logger.info("✅ Qwen model ready. Monitoring for new tasks...")
+        peek_row = await crud.get_next_not_started()
+        peek_model = ((peek_row['model'] if 'model' in peek_row.keys() else None) if peek_row else None) or 'qwen'
+        if peek_model != 'opencode':
+            await loop.run_in_executor(None, lambda: initiate({'text': 'Hi', 'model': 'qwen', 'max_new_tokens': 1}))
+            logger.info("✅ Qwen model ready. Monitoring for new tasks...")
+        else:
+            logger.info("⏭️ Skipping Qwen warmup (opencode task queued). Monitoring for new tasks...")
     except Exception as e:
         logger.warning(f"⚠️ Qwen model not available (opencode-only tasks will still work): {e}")
 
