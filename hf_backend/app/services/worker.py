@@ -117,13 +117,28 @@ async def _install_opencode():
     if proc.returncode != 0:
         raise RuntimeError("opencode installation failed")
 
-    # The installer places the binary in ~/.local/bin — add to PATH for this process
-    local_bin = os.path.expanduser("~/.local/bin")
-    if local_bin not in os.environ.get("PATH", ""):
-        os.environ["PATH"] = local_bin + ":" + os.environ.get("PATH", "")
+    # Always prepend common install locations so this process can find the binary
+    candidates = [
+        os.path.expanduser("~/.local/bin"),
+        os.path.expanduser("~/.bin"),
+        "/usr/local/bin",
+    ]
+    os.environ["PATH"] = ":".join(candidates) + ":" + os.environ.get("PATH", "")
 
+    # Fallback: locate the binary directly on disk
     if not shutil.which('opencode'):
-        raise RuntimeError("opencode installed but binary still not found in PATH")
+        result = await asyncio.create_subprocess_shell(
+            "find /home /root /usr/local/bin -name opencode -type f 2>/dev/null | head -1",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        stdout, _ = await result.communicate()
+        found = stdout.decode().strip()
+        if found:
+            os.environ["PATH"] = os.path.dirname(found) + ":" + os.environ["PATH"]
+        else:
+            raise RuntimeError("opencode installed but binary not found anywhere on disk")
+
     logger.info("✅ opencode installed successfully")
 
 
