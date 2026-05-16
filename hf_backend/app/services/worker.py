@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import shutil
 from app.core.config import settings
 from custom_logger import logger_config as logger
@@ -103,11 +104,32 @@ async def worker_loop():
             await asyncio.sleep(settings.POLL_INTERVAL)
 
 
+async def _install_opencode():
+    logger.info("opencode CLI not found. Installing via https://opencode.ai/install ...")
+    proc = await asyncio.create_subprocess_shell(
+        "curl -fsSL https://opencode.ai/install | bash",
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
+    )
+    async for line in proc.stdout:
+        logger.info(f"opencode install: {line.decode(errors='replace').rstrip()}")
+    await proc.wait()
+    if proc.returncode != 0:
+        raise RuntimeError("opencode installation failed")
+
+    # The installer places the binary in ~/.local/bin — add to PATH for this process
+    local_bin = os.path.expanduser("~/.local/bin")
+    if local_bin not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = local_bin + ":" + os.environ.get("PATH", "")
+
+    if not shutil.which('opencode'):
+        raise RuntimeError("opencode installed but binary still not found in PATH")
+    logger.info("✅ opencode installed successfully")
+
+
 async def _run_opencode(text: str) -> str:
     if not shutil.which('opencode'):
-        raise FileNotFoundError(
-            "opencode CLI not found. Install it from https://opencode.ai"
-        )
+        await _install_opencode()
 
     proc = await asyncio.create_subprocess_exec(
         'opencode', 'run', '--print-logs', '--model', 'opencode/big-pickle', text,
