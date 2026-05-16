@@ -72,7 +72,7 @@ async def worker_loop():
 
                     if model == 'opencode':
                         await crud.update_progress(task_id, 10, "Running opencode...")
-                        result = await _run_opencode(input_text)
+                        result = await _run_opencode(system_prompt, input_text)
                         logger.success(f"Successfully processed (opencode): {task_id}")
                         await crud.update_progress(task_id, 100, "Completed")
                         await crud.update_status(task_id, 'completed', result=json.dumps({"response": result}))
@@ -142,12 +142,14 @@ async def _install_opencode():
     logger.info("✅ opencode installed successfully")
 
 
-async def _run_opencode(text: str) -> str:
+async def _run_opencode(system_prompt: str, text: str) -> str:
     if not shutil.which('opencode'):
         await _install_opencode()
 
+    full_prompt = f"{system_prompt}\n\n{text}" if system_prompt else text
+
     proc = await asyncio.create_subprocess_exec(
-        'opencode', 'run', '--print-logs', '--model', 'opencode/big-pickle', text,
+        'opencode', 'run', '--print-logs', '--model', 'opencode/big-pickle', full_prompt,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
