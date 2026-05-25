@@ -172,11 +172,11 @@ async def _run_opencode(system_prompt: str, text: str) -> str:
                 _read_stream(proc.stdout, stdout_lines, "stdout"),
                 _read_stream(proc.stderr, stderr_lines, "stderr"),
             ),
-            timeout=120
+            timeout=300
         )
     except asyncio.TimeoutError:
         proc.kill()
-        raise TimeoutError("opencode timed out after 120s")
+        raise TimeoutError("opencode timed out after 300s")
 
     await proc.wait()
 
