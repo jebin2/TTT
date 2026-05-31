@@ -5,7 +5,7 @@ A Python-based text generation service powered by Qwen/Qwen3.5-4B with a neobrut
 ## Features
 
 - 📝 Text prompt submission via REST API
-- 🤖 Automatic generation using Qwen/Qwen3.5-4B
+- 🤖 Automatic generation using Qwen/Qwen3.5-4B or opencode/big-pickle
 - 💾 SQLite database for queue management
 - 🎨 Neobrutalist UI with smooth animations
 - 🔄 Real-time progress updates and token streaming
@@ -44,13 +44,16 @@ Submit a text prompt for generation.
 |-------|------|----------|-------------|
 | `text` | string | Yes | Input prompt |
 | `system_prompt` | string | No | System message (default: "You are a helpful assistant.") |
+| `model` | string | No | Model backend: `"qwen"` (local HF Transformers) or `"opencode"` (opencode CLI). Default: `"qwen"` |
 | `hide_from_ui` | boolean | No | Hide task from web UI (default: false) |
 
 **Response (201 Created):**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
+  "filename": "Explain quantum computing...",
   "status": "not_started",
+  "model": "qwen",
   "message": "Task submitted successfully"
 }
 ```
@@ -138,6 +141,24 @@ Retrieve a specific task including its full result.
 }
 ```
 
+## Model Backends
+
+The service supports two model backends, selectable per-task via the `model` field:
+
+### `qwen` (default)
+Runs locally using HuggingFace Transformers with Qwen/Qwen3.5-4B. The model is loaded once at worker startup and reused across tasks.
+
+### `opencode`
+Routes the prompt through the [opencode](https://opencode.ai) CLI using the `opencode/big-pickle` model. This is useful for offloading generation to opencode's infrastructure.
+
+**How it works:**
+1. The worker detects a task with `model: "opencode"` and runs `opencode run --print-logs --model opencode/big-pickle <prompt>`
+2. If the `opencode` binary is not found on `$PATH`, it is automatically installed via `curl -fsSL https://opencode.ai/install | bash`
+3. The full prompt is constructed as `{system_prompt}\n\n{input_text}`
+4. Generation is capped at 300 seconds; a `TimeoutError` is raised if exceeded
+
+**Note:** When an opencode task is queued first, the worker skips Qwen model warmup to save resources.
+
 ## Database Schema
 
 ```sql
@@ -145,6 +166,7 @@ CREATE TABLE text_tasks (
     id TEXT PRIMARY KEY,
     input_text TEXT NOT NULL,
     system_prompt TEXT,
+    model TEXT DEFAULT 'qwen',
     status TEXT NOT NULL,
     result TEXT,
     created_at TEXT NOT NULL,
@@ -177,7 +199,8 @@ CREATE TABLE text_tasks (
 - **Backend:** Flask (Python)
 - **Database:** SQLite
 - **Frontend:** Vanilla HTML/CSS/JavaScript
-- **Model:** Qwen/Qwen3.5-4B (via HuggingFace Transformers)
+- **Model (local):** Qwen/Qwen3.5-4B (via HuggingFace Transformers)
+- **Model (cloud):** opencode/big-pickle (via [opencode](https://opencode.ai) CLI, auto-installed if missing)
 - **Design:** Neobrutalism with neon accents
 
 ## License
