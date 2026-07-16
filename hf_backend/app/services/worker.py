@@ -173,17 +173,21 @@ async def _run_opencode(system_prompt: str, text: str) -> str:
             lines.append(decoded)
             logger.info(f"opencode {label}: {decoded}")
 
+    # A whole-book prompt (reconcile, the director pass) runs big-pickle for
+    # around five minutes; 300s killed those just as they were finishing. Give
+    # it real headroom — the client waits longer than this on purpose.
+    OPENCODE_TIMEOUT = 600
     try:
         await asyncio.wait_for(
             asyncio.gather(
                 _read_stream(proc.stdout, stdout_lines, "stdout"),
                 _read_stream(proc.stderr, stderr_lines, "stderr"),
             ),
-            timeout=300
+            timeout=OPENCODE_TIMEOUT
         )
     except asyncio.TimeoutError:
         proc.kill()
-        raise TimeoutError("opencode timed out after 300s")
+        raise TimeoutError(f"opencode timed out after {OPENCODE_TIMEOUT}s")
 
     await proc.wait()
 
