@@ -74,7 +74,7 @@ async def worker_loop():
 
                     if model == 'opencode':
                         await crud.update_progress(task_id, 10, "Running opencode...")
-                        result = await _run_opencode(system_prompt, input_text)
+                        result = await _run_opencode(system_prompt, input_text, task_id)
                         logger.success(f"Successfully processed (opencode): {task_id}")
                         await crud.update_progress(task_id, 100, "Completed")
                         await crud.update_status(task_id, 'completed', result=json.dumps({"response": result}))
@@ -199,7 +199,34 @@ def _shorten(text, width=100):
     return text if len(text) <= width else f"{text[:width - 1]}…"
 
 
-async def _run_opencode(system_prompt: str, text: str) -> str:
+def _format_elapsed(seconds):
+    seconds = int(seconds)
+    minutes, seconds = divmod(seconds, 60)
+    return f"{minutes}m{seconds:02d}s" if minutes else f"{seconds}s"
+
+
+# opencode reports nothing about how far along it is — the Qwen path has a real
+# progress_callback, but here the task would sit at 10% for minutes and then
+# jump to 100. This is an estimate, not a measurement: progress approaches but
+# never reaches 90%, hitting the halfway mark at _PROGRESS_BASELINE seconds, so
+# a run that takes longer than usual keeps moving instead of stalling or lying
+# about being nearly done. The elapsed time in the text is the honest part.
+_PROGRESS_BASELINE = 300  # seconds; a typical whole-book run
+_PROGRESS_INTERVAL = 10   # seconds between updates
+
+
+async def _report_progress(task_id):
+    started = time.monotonic()
+    while True:
+        await asyncio.sleep(_PROGRESS_INTERVAL)
+        elapsed = time.monotonic() - started
+        percent = 10 + int(80 * elapsed / (elapsed + _PROGRESS_BASELINE))
+        await crud.update_progress(
+            task_id, percent, f"Running opencode… {_format_elapsed(elapsed)}"
+        )
+
+
+async def _run_opencode(system_prompt: str, text: str, task_id: str = None) -> str:
     if not shutil.which('opencode'):
         await _install_opencode()
 
@@ -241,6 +268,7 @@ async def _run_opencode(system_prompt: str, text: str) -> str:
     # around five minutes; 300s killed those just as they were finishing. Give
     # it real headroom — the client waits longer than this on purpose.
     OPENCODE_TIMEOUT = 600
+    ticker = asyncio.create_task(_report_progress(task_id)) if task_id else None
     try:
         await asyncio.wait_for(
             asyncio.gather(
@@ -252,6 +280,9 @@ async def _run_opencode(system_prompt: str, text: str) -> str:
     except asyncio.TimeoutError:
         proc.kill()
         raise TimeoutError(f"opencode timed out after {OPENCODE_TIMEOUT}s")
+    finally:
+        if ticker:
+            ticker.cancel()
 
     await proc.wait()
 
