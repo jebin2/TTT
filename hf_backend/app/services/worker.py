@@ -1,7 +1,9 @@
 import asyncio
 import json
 import os
+import re
 import shutil
+import time
 from app.core.config import settings
 from custom_logger import logger_config as logger
 from app.db import crud
@@ -142,6 +144,61 @@ async def _install_opencode():
     logger.info("✅ opencode installed successfully")
 
 
+# opencode's `--print-logs` emits one structured line per internal event, e.g.
+#   INFO  2026-07-22T17:23:10 +37ms service=bus type=message.part.delta publishing
+# A single answer produces thousands of these, one per streamed token, which
+# buried every other worker log. Parse them instead of echoing: real problems
+# (WARN/ERROR) get their own line, the token firehose collapses into a single
+# overwriting heartbeat, and a persistent summary is written at the end.
+_OPENCODE_LOG_RE = re.compile(
+    r'^(?P<level>DEBUG|INFO|WARN|ERROR)\s+\S+\s+\S+\s+(?P<rest>.*)$'
+)
+_HEARTBEAT_INTERVAL = 1.0  # seconds between heartbeat repaints
+
+
+class _OpencodeLog:
+    def __init__(self, label):
+        self.label = label
+        self.count = 0
+        self.started = time.monotonic()
+        self.last_beat = 0.0
+
+    def emit(self, line):
+        if not line:
+            return
+        self.count += 1
+
+        match = _OPENCODE_LOG_RE.match(line)
+        level = match.group('level') if match else None
+        detail = match.group('rest') if match else line
+
+        if level == 'ERROR':
+            logger.error(f"opencode {self.label}: {detail}")
+            return
+        if level == 'WARN':
+            logger.warning(f"opencode {self.label}: {detail}")
+            return
+
+        now = time.monotonic()
+        if now - self.last_beat < _HEARTBEAT_INTERVAL:
+            return
+        self.last_beat = now
+        elapsed = int(now - self.started)
+        logger.info(
+            f"opencode {self.label}: {self.count} lines / {elapsed}s | {_shorten(detail)}",
+            overwrite=True,
+        )
+
+    def flush(self):
+        elapsed = int(time.monotonic() - self.started)
+        logger.info(f"opencode {self.label}: done — {self.count} lines in {elapsed}s")
+
+
+def _shorten(text, width=100):
+    text = text.strip()
+    return text if len(text) <= width else f"{text[:width - 1]}…"
+
+
 async def _run_opencode(system_prompt: str, text: str) -> str:
     if not shutil.which('opencode'):
         await _install_opencode()
@@ -165,13 +222,15 @@ async def _run_opencode(system_prompt: str, text: str) -> str:
     stderr_lines = []
 
     async def _read_stream(stream, lines, label):
+        log = _OpencodeLog(label)
         while True:
             line = await stream.readline()
             if not line:
                 break
             decoded = line.decode(errors='replace').rstrip()
             lines.append(decoded)
-            logger.info(f"opencode {label}: {decoded}")
+            log.emit(decoded)
+        log.flush()
 
     # A whole-book prompt (reconcile, the director pass) runs big-pickle for
     # around five minutes; 300s killed those just as they were finishing. Give
@@ -195,5 +254,8 @@ async def _run_opencode(system_prompt: str, text: str) -> str:
     stderr = '\n'.join(stderr_lines)
 
     if proc.returncode != 0:
-        raise RuntimeError(f"opencode failed ({proc.returncode}): {stderr or 'unknown error'}")
+        # stderr can be thousands of suppressed event lines; the tail is where
+        # the actual failure is.
+        tail = '\n'.join(stderr.splitlines()[-20:])
+        raise RuntimeError(f"opencode failed ({proc.returncode}): {tail or 'unknown error'}")
     return stdout
