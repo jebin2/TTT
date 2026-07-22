@@ -205,14 +205,19 @@ async def _run_opencode(system_prompt: str, text: str) -> str:
 
     full_prompt = f"{system_prompt}\n\n{text}" if system_prompt else text
 
-    # --print-logs echoes the whole prompt back on a single log line, and the
-    # readers below use StreamReader.readline(), whose buffer defaults to 64KB
-    # (2**16). A prompt larger than that — a character-dense reconcile pass, say
-    # — overflows on the very first line with "Separator is found, but chunk is
-    # longer than limit", and the task fails before opencode does any work. Give
-    # the streams room for any prompt we would realistically send.
+    # --log-level WARN keeps the logs we care about (something went wrong) and
+    # drops the INFO firehose: one `message.part.delta publishing` line per
+    # streamed token, plus the whole-prompt echo on startup.
+    #
+    # That echo is why the streams get a raised limit. The readers below use
+    # StreamReader.readline(), whose buffer defaults to 64KB (2**16), and a
+    # prompt larger than that — a character-dense reconcile pass, say —
+    # overflowed on the very first line with "Separator is found, but chunk is
+    # longer than limit", failing the task before opencode did any work. WARN
+    # should suppress the echo, but the headroom stays as insurance.
     proc = await asyncio.create_subprocess_exec(
-        'opencode', 'run', '--print-logs', '--model', 'opencode/big-pickle', full_prompt,
+        'opencode', 'run', '--print-logs', '--log-level', 'WARN',
+        '--model', 'opencode/big-pickle', full_prompt,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         limit=2 ** 24,  # 16 MB
