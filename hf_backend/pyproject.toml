@@ -13,6 +13,7 @@ dependencies = [
     "aiofiles",
     "python-multipart",
     "custom_logger @ git+https://github.com/jebin2/custom_logger.git",
+    "jebin_lib @ git+https://github.com/jebin2/lib.git",
     "ttt-runner @ git+https://github.com/jebin2/TTT.git"
 ]
 

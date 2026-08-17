@@ -1,11 +1,12 @@
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
+from jebin_lib import load_env
 
-# hf_backend/.env, resolved from this file so it is found whatever the CWD is.
-# override=False keeps real env vars (HF Space secrets, `export`) ahead of the file.
-load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
+# Same convention as ttt/__init__.py: ~/.env, ~/.envs/.env,
+# ~/.envs/.<project>_env, then <project>/.env. The path is resolved from
+# __file__ so it lands on hf_backend/ whatever the CWD is.
+load_env(str(Path(__file__).resolve().parents[2]))
 
 
 class Config:
