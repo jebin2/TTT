@@ -1,4 +1,12 @@
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# hf_backend/.env, resolved from this file so it is found whatever the CWD is.
+# override=False keeps real env vars (HF Space secrets, `export`) ahead of the file.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
+
 
 class Config:
     PORT = int(os.environ.get('PORT', 7860))
