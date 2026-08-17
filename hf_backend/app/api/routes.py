@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
 import uuid
 from app.core.config import settings
+from app.core.security import require_api_key
 from app.db import crud
 from app.services.worker import start_worker, is_worker_running
 from custom_logger import logger_config as logger
@@ -12,7 +13,7 @@ router = APIRouter()
 async def index():
     return FileResponse('index.html')
 
-@router.post("/api/tasks/upload")
+@router.post("/api/tasks/upload", dependencies=[Depends(require_api_key)])
 async def submit_task(request: Request):
     data = await request.json()
     if not data or not data.get('text', '').strip():
@@ -36,7 +37,7 @@ async def submit_task(request: Request):
         'message': 'Task submitted successfully'
     })
 
-@router.get("/api/tasks")
+@router.get("/api/tasks", dependencies=[Depends(require_api_key)])
 async def get_tasks():
     rows, queue_ids, processing_count, avg_time = await crud.get_all_tasks()
     
@@ -65,7 +66,7 @@ async def get_tasks():
 
     return tasks
 
-@router.get("/api/tasks/{task_id}")
+@router.get("/api/tasks/{task_id}", dependencies=[Depends(require_api_key)])
 async def get_task(task_id: str):
     result = await crud.get_task_by_id(task_id)
     if not result:

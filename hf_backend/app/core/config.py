@@ -5,7 +5,11 @@ class Config:
     UPLOAD_FOLDER = 'uploads'
     TEMP_DIR = 'temp_dir'
     DATABASE_FILE = 'text_tasks.db'
-    
+
+    # Auth: every /api/* request must send this value in the X-API-Key header
+    API_KEY = os.environ.get('TTT_API_KEY')
+    API_KEY_HEADER = 'X-API-Key'
+
     # Core logic settings
     POLL_INTERVAL = 3
     CLEANUP_DAYS = 10

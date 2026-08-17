@@ -579,6 +579,24 @@
         // --- Configuration ---
         const API_BASE = '/api';
 
+        // --- API key auth (sent as X-API-Key on every /api call) ---
+        function getApiKey() {
+            let key = localStorage.getItem('ttt_api_key');
+            if (!key) {
+                key = (prompt('Enter API key') || '').trim();
+                if (key) localStorage.setItem('ttt_api_key', key);
+            }
+            return key;
+        }
+
+        function apiFetch(url, options = {}) {
+            const headers = Object.assign({}, options.headers, { 'X-API-Key': getApiKey() });
+            return fetch(url, Object.assign({}, options, { headers })).then(res => {
+                if (res.status === 401) localStorage.removeItem('ttt_api_key');
+                return res;
+            });
+        }
+
         // --- DOM Elements ---
         const UI = {
             inputText: document.getElementById('inputText'),
@@ -640,7 +658,7 @@
         // --- API Functions ---
         async function loadTasks() {
             try {
-                const res = await fetch(`${API_BASE}/tasks`);
+                const res = await apiFetch(`${API_BASE}/tasks`);
                 const tasks = await res.json();
                 renderQueue(tasks);
             } catch (err) {
@@ -657,7 +675,7 @@
             UI.submitBtn.disabled = true;
 
             try {
-                const res = await fetch(`${API_BASE}/tasks/upload`, {
+                const res = await apiFetch(`${API_BASE}/tasks/upload`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -688,7 +706,7 @@
 
         async function showResult(id) {
             try {
-                const res = await fetch(`${API_BASE}/tasks/${id}`);
+                const res = await apiFetch(`${API_BASE}/tasks/${id}`);
                 const data = await res.json();
                 let text = data.result;
 
