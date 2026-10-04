@@ -1,4 +1,23 @@
+import sys
 from contextlib import asynccontextmanager
+
+# Nothing logs at import time, so this is the earliest point that matters.
+# Every app log line goes through sys.stdout, and when that is a pipe — always,
+# under Docker — CPython block-buffers it. A whole run then produced no output
+# for minutes and then landed in one burst: the "stuck at 42%" that was really
+# a log pipeline hiding a live task behind a stale timestamp.
+#
+# The Dockerfile sets ENV PYTHONUNBUFFERED=1, but an empty or "0" value in a
+# compose `environment:` block or .env file silently reverts it to buffered, so
+# force write-through in-process rather than trusting the env. Measured
+# equivalent to PYTHONUNBUFFERED=1: first byte at t=0.03s instead of t=2.02s,
+# which is when the process exited.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(line_buffering=True, write_through=True)
+    except (AttributeError, ValueError):
+        pass  # not a real TextIOWrapper (test capture, or already detached)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
