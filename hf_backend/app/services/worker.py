@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import json
 import os
 import re
@@ -205,25 +206,55 @@ def _format_elapsed(seconds):
     return f"{minutes}m{seconds:02d}s" if minutes else f"{seconds}s"
 
 
-# opencode reports nothing about how far along it is — the Qwen path has a real
-# progress_callback, but here the task would sit at 10% for minutes and then
-# jump to 100. This is an estimate, not a measurement: progress approaches but
-# never reaches 90%, hitting the halfway mark at _PROGRESS_BASELINE seconds, so
-# a run that takes longer than usual keeps moving instead of stalling or lying
-# about being nearly done. The elapsed time in the text is the honest part.
-_PROGRESS_BASELINE = 300  # seconds; a typical whole-book run
-_PROGRESS_INTERVAL = 10   # seconds between updates
+# opencode reports nothing about how far along it is, so both the progress
+# percentage and the kill deadline are estimates. They have to be estimates of
+# the *same* thing: they used to be two unrelated literals — a 300s baseline
+# for the curve and a 600s deadline — which is how a run could report 59% while
+# it was 80% through its budget and then die at the timeout with nothing in the
+# log to warn anyone. One estimate now drives both.
+_OPENCODE_CHARS_PER_SECOND = settings.OPENCODE_CHARS_PER_SECOND
+_OPENCODE_MIN_SECONDS = settings.OPENCODE_MIN_SECONDS
+_OPENCODE_MAX_SECONDS = settings.OPENCODE_MAX_SECONDS
+_OPENCODE_TIMEOUT_SLACK = settings.OPENCODE_TIMEOUT_SLACK
+_PROGRESS_INTERVAL = settings.OPENCODE_PROGRESS_INTERVAL
+# opencode streams nothing useful until it finishes, so the top of the range is
+# reserved for "still going, don't read this as nearly done".
+_PROGRESS_CEILING = 95
+# Inside this many seconds of the estimate, the text says so out loud.
+_OVERRUN_WARNING = 60
 
 
-async def _report_progress(task_id):
-    started = time.monotonic()
+def _estimate_seconds(prompt: str) -> int:
+    """Seconds big-pickle is expected to need for a prompt this size."""
+    seconds = int(len(prompt) / _OPENCODE_CHARS_PER_SECOND)
+    return max(_OPENCODE_MIN_SECONDS, min(_OPENCODE_MAX_SECONDS, seconds))
+
+
+async def _report_progress(task_id: str, started: float, estimate: int):
+    """Advance the progress estimate, and survive a failed DB write.
+
+    Nothing awaits this task, so an exception used to kill the ticker silently:
+    one `database is locked` while the API touched text_tasks.db and the task
+    sat frozen on one number until opencode finished or timed out, with nothing
+    in the log explaining the stall.
+    """
     while True:
         await asyncio.sleep(_PROGRESS_INTERVAL)
         elapsed = time.monotonic() - started
-        percent = 10 + int(80 * elapsed / (elapsed + _PROGRESS_BASELINE))
-        await crud.update_progress(
-            task_id, percent, f"Running opencode… {_format_elapsed(elapsed)}"
+        percent = 10 + int(
+            (_PROGRESS_CEILING - 10) * min(1.0, elapsed / estimate)
         )
+
+        text = f"Running opencode… {_format_elapsed(elapsed)}"
+        if elapsed > estimate:
+            text += f" — past {_format_elapsed(estimate)} estimate, overrunning"
+        elif estimate - elapsed < _OVERRUN_WARNING:
+            text += f" — near {_format_elapsed(estimate)} estimate"
+
+        try:
+            await crud.update_progress(task_id, percent, text)
+        except Exception as e:
+            logger.warning(f"Progress update failed for {task_id}: {e}")
 
 
 async def _run_opencode(system_prompt: str, text: str, task_id: str = None) -> str:
@@ -253,6 +284,13 @@ async def _run_opencode(system_prompt: str, text: str, task_id: str = None) -> s
     stdout_lines = []
     stderr_lines = []
 
+    estimate = _estimate_seconds(full_prompt)
+    timeout = int(estimate * _OPENCODE_TIMEOUT_SLACK)
+    logger.info(
+        f"opencode: {len(full_prompt)} chars, expecting ~{_format_elapsed(estimate)}, "
+        f"killing at {_format_elapsed(timeout)}"
+    )
+
     async def _read_stream(stream, lines, label):
         log = _OpencodeLog(label)
         while True:
@@ -265,21 +303,31 @@ async def _run_opencode(system_prompt: str, text: str, task_id: str = None) -> s
         log.flush()
 
     # A whole-book prompt (reconcile, the director pass) runs big-pickle for
-    # around five minutes; 300s killed those just as they were finishing. Give
-    # it real headroom — the client waits longer than this on purpose.
-    OPENCODE_TIMEOUT = 600
-    ticker = asyncio.create_task(_report_progress(task_id)) if task_id else None
+    # minutes at a time, so the deadline scales with the prompt rather than
+    # being a fixed cap — see _estimate_seconds. The client waits longer than
+    # this on purpose.
+    started = time.monotonic()
+    ticker = (
+        asyncio.create_task(_report_progress(task_id, started, estimate))
+        if task_id else None
+    )
     try:
         await asyncio.wait_for(
             asyncio.gather(
                 _read_stream(proc.stdout, stdout_lines, "stdout"),
                 _read_stream(proc.stderr, stderr_lines, "stderr"),
             ),
-            timeout=OPENCODE_TIMEOUT
+            timeout=timeout
         )
     except asyncio.TimeoutError:
-        proc.kill()
-        raise TimeoutError(f"opencode timed out after {OPENCODE_TIMEOUT}s")
+        # Reap the child: kill() alone leaves a zombie until the next wait().
+        with contextlib.suppress(ProcessLookupError):
+            proc.kill()
+        await proc.wait()
+        raise TimeoutError(
+            f"opencode timed out after {timeout}s "
+            f"(prompt {len(full_prompt)} chars, expected ~{_format_elapsed(estimate)})"
+        )
     finally:
         if ticker:
             ticker.cancel()
