@@ -46,7 +46,7 @@ async def worker_loop():
         logger.warning(f"⚠️ Qwen model not available (opencode-only tasks will still work): {e}")
 
     while worker_running:
-        logger.debug("Worker loop iteration, checking for files...")
+        logger.debug("Worker loop iteration, checking for files...", overwrite=True)
         await crud.cleanup_old_entries()
         
         try:
