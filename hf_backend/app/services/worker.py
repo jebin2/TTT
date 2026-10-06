@@ -348,4 +348,18 @@ async def _run_opencode(system_prompt: str, text: str, task_id: str = None) -> s
         # the actual failure is.
         tail = '\n'.join(stderr.splitlines()[-20:])
         raise RuntimeError(f"opencode failed ({proc.returncode}): {tail or 'unknown error'}")
+    # opencode exits 0 even when the model call itself failed (e.g. a 426
+    # "OpenCode 1.18.0 or newer is required"), leaving stdout empty. Without
+    # this check the task was marked successful with no answer.
+    if not stdout.strip():
+        raise RuntimeError(f"opencode produced no output: {_opencode_error(stderr_lines)}")
     return stdout
+
+
+def _opencode_error(stderr_lines):
+    """The most useful one-line reason from opencode's stderr."""
+    for line in reversed(stderr_lines):
+        if 'service=session.processor' in line and 'error=' in line:
+            return line.split('error=', 1)[1].split(' stack=', 1)[0]
+    errors = [line for line in stderr_lines if line.startswith('ERROR')]
+    return _shorten(errors[-1], 300) if errors else 'unknown error'
