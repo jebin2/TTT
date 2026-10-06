@@ -273,9 +273,15 @@ async def _run_opencode(system_prompt: str, text: str, task_id: str = None) -> s
     # overflowed on the very first line with "Separator is found, but chunk is
     # longer than limit", failing the task before opencode did any work. WARN
     # should suppress the echo, but the headroom stays as insurance.
+    #
+    # stdin must be DEVNULL. `opencode run` reads stdin to EOF whenever it is
+    # not a TTY, and under pm2 the inherited stdin is a pipe that never closes,
+    # so opencode blocked before sending anything and every task — even a
+    # 1.3k-char prompt that takes ~7s — sat there until the timeout killed it.
     proc = await asyncio.create_subprocess_exec(
         'opencode', 'run', '--print-logs', '--log-level', 'WARN',
         '--model', 'opencode/big-pickle', full_prompt,
+        stdin=asyncio.subprocess.DEVNULL,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         limit=2 ** 24,  # 16 MB
